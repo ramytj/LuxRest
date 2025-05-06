@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Melanopic Lux Dashboard (Cache-Busting Enabled)</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #controls { margin-bottom: 20px; }
+        select { padding: 5px 10px; margin-right: 10px; }
+        #error-msg { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Melanopic Lux Dashboard (Live from Published Google Sheet with Cache-Busting)</h2>
+    <div id="controls">
+        <label for="date-select">Select Date:</label>
+        <select id="date-select"></select>
+
+        <label for="resolution-select">Resolution:</label>
+        <select id="resolution-select">
+            <option value="5">Every 5 minutes</option>
+            <option value="15">Every 15 minutes</option>
+            <option value="60" selected>Hourly</option>
+            <option value="360">Every 6 hours</option>
+        </select>
+    </div>
+    <div id="chart" style="width: 100%; height: 600px;"></div>
+    <div id="error-msg"></div>
+
+    <script>
+        const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv";
+        const csvUrl = baseUrl + "&cb=" + Date.now();  // cache-busting
+        let parsedData = [];
+
+        function groupByResolution(data, resolutionMinutes) {
+            const grouped = {};
+            data.forEach(row => {
+                const date = row.dateStr;
+                const datetime = row.datetime;
+                const timeKey = new Date(Math.floor(datetime.getTime() / (resolutionMinutes * 60 * 1000)) * resolutionMinutes * 60 * 1000);
+                const key = date + " " + timeKey.toTimeString().substring(0,5);
+                if (!grouped[key]) {
+                    grouped[key] = { time: timeKey, date: date, mel: 0, count: 0 };
+                }
+                grouped[key].mel += row.mel;
+                grouped[key].count += 1;
+            });
+            return Object.values(grouped).map(g => {
+                return { time: g.time, date: g.date, mel: g.mel / g.count };
+            });
+        }
+
+        function updateChart(date, resolution) {
+            const resolutionMinutes = parseInt(resolution);
+            const groupedData = groupByResolution(parsedData, resolutionMinutes);
+            const dayData = groupedData.filter(d => d.date === date)
+                .sort((a, b) => new Date(a.time) - new Date(b.time));
+
+            const trace = {
+                x: dayData.map(d => d.time),
+                y: dayData.map(d => d.mel),
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'Melanopic Lux'
+            };
+
+            const layout = {
+                title: `Melanopic Lux on ${date}`,
+                xaxis: {
+                    title: 'Time',
+                    range: [
+                        new Date(date + "T00:00:00"),
+                        new Date(date + "T23:59:59")
+                    ]
+                },
+                yaxis: {
+                    title: 'Melanopic Lux'
+                }
+            };
+
+            Plotly.newPlot('chart', [trace], layout);
+        }
+
+        function populateControls() {
+            const dateSelect = document.getElementById('date-select');
+            const resolutionSelect = document.getElementById('resolution-select');
+            const uniqueDates = [...new Set(parsedData.map(row => row.dateStr))];
+            if (uniqueDates.length === 0) {
+                document.getElementById('error-msg').textContent = "No valid data found in the sheet.";
+                return;
+            }
+            uniqueDates.forEach(date => {
+                const opt = document.createElement('option');
+                opt.value = date;
+                opt.textContent = date;
+                dateSelect.appendChild(opt);
+            });
+            dateSelect.value = uniqueDates[0];
+
+            dateSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
+            resolutionSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
+
+            updateChart(dateSelect.value, resolutionSelect.value);
+        }
+
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                parsedData = results.data.map(row => {
+                    const ts = parseInt((row['timestamp'] || '').trim());
+                    const mel = parseFloat((row['mel'] || '').trim());
+                    if (isNaN(ts) || isNaN(mel)) return null;
+
+                    const utc = new Date(ts * 1000);
+                    const est = new Date(utc.getTime() - (5 * 60 * 60 * 1000));
+                    const dateStr = est.toISOString().split('T')[0];
+
+                    return {
+                        datetime: est,
+                        dateStr: dateStr,
+                        mel: mel
+                    };
+                }).filter(r => r !== null);
+
+                console.log("Parsed rows:", parsedData.length);
+                populateControls();
+            }
+        });
+    </script>
+</body>
+</html>
