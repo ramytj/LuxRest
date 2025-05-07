@@ -111,7 +111,7 @@
 
   <script>
     // Snap to 20px grid during drag
-    const gridSize = 20;
+    const gridSize = 100;
     const dragElement = (element, header) => {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
       header.onmousedown = dragMouseDown;
@@ -290,10 +290,7 @@
           domain: [0, 1],
           anchor: 'y2',
           gridcolor: '#e0e0e0',
-          range: [
-            new Date(date + "T00:00:00"),
-            new Date(date + "T23:59:59")
-          ]
+          range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
         },
         yaxis: {
           title: '0–15 Lux (Evening-Time)',
@@ -310,8 +307,37 @@
         legend: {
           orientation: 'h',
           y: -0.2
-        }
+        },
+        shapes: [
+          {
+            type: 'rect',
+            xref: 'paper',
+            yref: 'paper',
+            x0: 0,
+            x1: 1,
+            y0: 0.75,
+            y1: 1,
+            fillcolor: '#161f28',  // midnight blue for zoomed subplot
+            opacity: 0.2,
+            layer: 'below',
+            line: { width: 0 }
+          },
+          {
+            type: 'rect',
+            xref: 'paper',
+            yref: 'paper',
+            x0: 0,
+            x1: 1,
+            y0: 0,
+            y1: 0.75,
+            fillcolor: '#FFF7E1',  // light yellow for full subplot
+            opacity: 0.2,
+            layer: 'below',
+            line: { width: 0 }
+          }
+        ]
       };
+
     
       Plotly.newPlot(
         'chart',
