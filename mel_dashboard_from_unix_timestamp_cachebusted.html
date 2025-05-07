@@ -187,7 +187,7 @@
         yaxis: 'y2',
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' },
-        showlegend: false,
+        showlegend: false
       };
 
       // Shared x-values and hover text for both traces
@@ -247,7 +247,11 @@
           null, null,
           "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
         ],
-        textposition: 'top center',
+        textposition: [
+          'top right', 'top left',
+          null, null,
+          'top right', 'top left'
+        ],
         hoverinfo: 'skip',
         yaxis: 'y1',
         showlegend: false,
@@ -270,7 +274,11 @@
           "Ideal: ≥250 lux (daytime)", "Ideal: ≥250 lux (daytime)",
           "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
         ],
-        textposition: 'top center',
+        textposition: [
+          'top right', 'top left',
+          'top right', 'top left',
+          'top right', 'top left'
+        ],
         hoverinfo: 'skip',
         yaxis: 'y2',
         showlegend: false,
