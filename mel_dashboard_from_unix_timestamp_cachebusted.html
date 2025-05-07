@@ -29,8 +29,8 @@
       }
   
       select {
-        font-size: 24px;
-        padding: 18px 18px;
+        font-size: 18px;
+        padding: 10px 14px;
       }
   
       #chart-container {
@@ -376,13 +376,13 @@
           range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
         },
         yaxis: {
-          title: '0–15 Lux (Evening-Time)',
+          title: 'MLE [0–15 Lux (Evening-Time)]',
           range: [0, 15],
           domain: [0, 0.2],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
-          title: '0–500 Lux (Full)',
+          title: 'MLE (Melanopic Light Exposure)',
           range: [0, 500],
           domain: [0.3, 1],
           gridcolor: '#e0e0e0'
