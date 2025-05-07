@@ -155,55 +155,29 @@
       const groupedData = groupByResolution(parsedData, resolutionMinutes);
       const dayData = groupedData.filter(d => d.date === date)
         .sort((a, b) => new Date(a.time) - new Date(b.time));
-      
-      const lowLux = dayData.filter(d => d.mel <= 10);
-      const highLux = dayData.filter(d => d.mel > 10);
-      
-      // Trace 1: Low range (0–10 lux)
-      const traceLow = {
-        x: lowLux.map(d => d.time),
-        y: lowLux.map(d => d.mel),
-        mode: 'markers',
-        name: '0–10 Lux',
-        yaxis: 'y1',
-        marker: { color: '#FAAB36', size: 8, symbol: 'circle' }
-      };
-      
-      // Trace 2: High range (10–500 lux)
-      const traceHigh = {
-        x: highLux.map(d => d.time),
-        y: highLux.map(d => d.mel),
+    
+      const trace1 = {
+        x: dayData.map(d => d.time),
+        y: dayData.map(d => d.mel),
         mode: 'lines+markers',
-        name: '10+ Lux',
+        type: 'scatter',
+        name: 'Melanopic Lux (Zoomed)',
+        yaxis: 'y1',
+        line: { color: '#FAAB36' },
+        marker: { color: '#FAAB36' }
+      };
+    
+      const trace2 = {
+        x: dayData.map(d => d.time),
+        y: dayData.map(d => d.mel),
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Melanopic Lux (Full)',
         yaxis: 'y2',
         line: { color: '#249EA0' },
         marker: { color: '#249EA0' }
       };
-      
-      // Optional: Ideal exposure trace (adjust yaxis if needed)
-      const traceIdeal = {
-        x: [
-          new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
-          new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
-          new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
-        ],
-        y: [
-          1, 1,
-          250, 250,
-          10, 10
-        ],
-        mode: 'lines',
-        name: 'Ideal Exposure',
-        line: { dash: 'dot', color: '#F78104', width: 2 },
-        hoverinfo: 'text',
-        text: [
-          "1 lux max (sleeping)", "1 lux max (sleeping)",
-          "≥ 250 lux (daytime)", "≥ 250 lux (daytime)",
-          "10 lux max (evening)", "10 lux max (evening)"
-        ],
-        yaxis: 'y2'
-      };
-      
+    
       const layout = {
         title: `Melanopic Lux on ${date}`,
         grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
@@ -215,25 +189,30 @@
           domain: [0, 1],
           anchor: 'y2',
           gridcolor: '#e0e0e0',
-          range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
+          range: [
+            new Date(date + "T00:00:00"),
+            new Date(date + "T23:59:59")
+          ]
         },
         yaxis: {
-          title: '0–10 Lux',
+          title: '0–10 Lux (Zoomed)',
           range: [0, 10],
-          domain: [0.6, 1],  // top half
+          domain: [0.6, 1],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
-          title: '10+ Lux',
-          range: [10, 500],
-          domain: [0, 0.4],  // bottom half
+          title: '0–500 Lux (Full)',
+          range: [0, 500],
+          domain: [0, 0.4],
           gridcolor: '#e0e0e0'
         },
-        legend: { orientation: 'h', y: -0.2 }
+        legend: {
+          orientation: 'h',
+          y: -0.2
+        }
       };
-      
-      Plotly.newPlot('chart', [traceLow, traceHigh, traceIdeal], layout, { scrollZoom: true, responsive: true });
-
+    
+      Plotly.newPlot('chart', [trace1, trace2], layout, { scrollZoom: true, responsive: true });
     }
 
     function populateControls() {
