@@ -14,6 +14,7 @@
     }
     #dashboard-window {
       width: 800px;
+      height: 800px;
       border: 1px solid #ccc;
       border-radius: 10px;
       position: absolute;
@@ -22,7 +23,8 @@
       background: #FAAB36;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       z-index: 1000;
-      overflow: hidden; 
+      overflow: auto;
+      resize: both;
     }
     #dashboard-header {
       padding: 10px;
@@ -42,7 +44,24 @@
     }
     #chart-container {
       background: #249EA0; /*light teal*/
-      padding: 20px;
+      background-color: #FAAB36;
+      border: 1px solid #F78104;
+      border-radius: 5px;
+      color: #000;
+      font-weight: bold;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    select:hover {
+      background-color: #F78104;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4);
+    }
+    #chart {
+      width: 100%;
+      height: 650px;
     }
     #error-msg {
       color: red;
@@ -58,15 +77,6 @@
       font-weight: bold;
     }
     
-    select:hover {
-      background-color: #F78104;  /* hover: deeper orange */
-      cursor: pointer;
-    }
-    
-    select:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4); /* orange glow */
-    }
     select {
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
@@ -96,7 +106,7 @@
       </select>
     </div>
     <div id="chart-container">
-      <div id="chart" style="width: 100%; height: 500px;"></div>
+      <div id="chart"></div>
       <div id="error-msg"></div>
     </div>
   </div>
@@ -174,10 +184,33 @@
         type: 'scatter',
         name: 'Melanopic Lux (Full)',
         yaxis: 'y2',
-        line: { color: '#249EA0' },
-        marker: { color: '#249EA0' }
+        line: { color: '#FAAB36' },
+        marker: { color: '#FAAB36' }
       };
-    
+    // Optional: Ideal exposure trace (adjust yaxis if needed)
+      const traceIdeal = {
+        x: [
+          new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
+          new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
+          new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
+        ],
+        y: [
+          1, 1,
+          250, 250,
+          10, 10
+        ],
+        mode: 'lines',
+        name: 'Ideal Exposure',
+        line: { dash: 'dot', color: '#F78104', width: 2 },
+        hoverinfo: 'text',
+        text: [
+          "1 lux max (sleeping)", "1 lux max (sleeping)",
+          "≥ 250 lux (daytime)", "≥ 250 lux (daytime)",
+          "10 lux max (evening)", "10 lux max (evening)"
+        ],
+        yaxis: 'y2'
+      };
+
       const layout = {
         title: `Melanopic Lux on ${date}`,
         grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
@@ -197,13 +230,13 @@
         yaxis: {
           title: '0–10 Lux (Zoomed)',
           range: [0, 10],
-          domain: [0.6, 1],
+          domain: [0.75, 1],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
           title: '0–500 Lux (Full)',
           range: [0, 500],
-          domain: [0, 0.4],
+          domain: [0, 0.75],
           gridcolor: '#e0e0e0'
         },
         legend: {
@@ -212,7 +245,7 @@
         }
       };
     
-      Plotly.newPlot('chart', [trace1, trace2], layout, { scrollZoom: true, responsive: true });
+      Plotly.newPlot('chart', [trace1, trace2, traceIdeal], layout, { scrollZoom: true, responsive: true });
     }
 
     function populateControls() {
