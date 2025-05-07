@@ -25,7 +25,7 @@
       }
   
       #controls {
-        font-size: 36px;
+        font-size: 18px;
       }
   
       select {
@@ -378,13 +378,13 @@
         yaxis: {
           title: '0–15 Lux (Evening-Time)',
           range: [0, 15],
-          domain: [0.75, 1],
+          domain: [0, 0.2],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
           title: '0–500 Lux (Full)',
           range: [0, 500],
-          domain: [0, 0.75],
+          domain: [0.3, 1],
           gridcolor: '#e0e0e0'
         },
         legend: {
@@ -398,8 +398,8 @@
             yref: 'paper',
             x0: 0,
             x1: 1,
-            y0: 0.75,
-            y1: 1,
+            y0: 0,
+            y1: 0.2,
             fillcolor: '#161f28',  // midnight blue for zoomed subplot
             opacity: 1,
             layer: 'below',
@@ -411,8 +411,8 @@
             yref: 'paper',
             x0: 0,
             x1: 1,
-            y0: 0,
-            y1: 0.75,
+            y0: 0.3,
+            y1: 1,
             fillcolor: '#FFF7E1',  // light yellow for full subplot
             opacity: 1,
             layer: 'below',
