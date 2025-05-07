@@ -47,7 +47,7 @@
 
 
     #chart-container {
-      background-color: #FAAB36; /*light teal*/
+      background-color: #ffffff; /*light teal*/
       border: 1px solid #F78104;
       border-radius: 5px;
       color: #000;
@@ -210,20 +210,58 @@
       const idealY = [1, 1, 250, 250, 10, 10];
 
 
-      // Hover-only trace (Zoomed)
+      // Hover points for Zoomed chart (≤10 lux segments only)
+      const hoverXZoomed = [
+        new Date(`${date}T00:00:00`),                        // start
+        new Date(`${date}T03:00:00`),                        // middle
+        new Date(`${date}T05:30:00`),                        // near end
+        new Date(`${date}T18:00:00`),
+        new Date(`${date}T21:00:00`),
+        new Date(`${date}T23:30:00`)
+      ];
+      const hoverYZoomed = [1, 1, 1, 10, 10, 10];
+      const hoverTextZoomed = [
+        "maximum 1 lux when sleeping", "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+        "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+      ];
+      
       const traceIdealZoomedHover = {
-        x: idealX,
-        y: idealY.map((v, i) => v <= 10 ? v : null), // Filter only zoom-relevant lines
-        mode: 'lines',
+        x: hoverXZoomed,
+        y: hoverYZoomed,
+        mode: 'markers',
         name: '',
-        line: { dash: 'dot', color: '#F78104', width: 2 },
+        marker: { color: '#F78104', size: 6 },
         hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          null, null,
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
-        ],
+        text: hoverTextZoomed,
         yaxis: 'y1',
+        showlegend: false
+      };
+      
+      // Hover points for Full chart (includes ≥250 lux segment)
+      const hoverXFull = [
+        ...hoverXZoomed,
+        new Date(`${date}T06:00:00`),
+        new Date(`${date}T12:00:00`),
+        new Date(`${date}T17:30:00`)
+      ];
+      const hoverYFull = [
+        ...hoverYZoomed,
+        250, 250, 250
+      ];
+      const hoverTextFull = [
+        ...hoverTextZoomed,
+        "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)"
+      ];
+      
+      const traceIdealFullHover = {
+        x: hoverXFull,
+        y: hoverYFull,
+        mode: 'markers',
+        name: '',
+        marker: { color: '#F78104', size: 6 },
+        hoverinfo: 'text',
+        text: hoverTextFull,
+        yaxis: 'y2',
         showlegend: false
       };
 
@@ -244,22 +282,6 @@
         showlegend: false
       };
 
-      // Hover-only trace (Full)
-      const traceIdealFullHover = {
-        x: idealX,
-        y: idealY,
-        mode: 'lines',
-        name: '',
-        line: { dash: 'dot', color: '#F78104', width: 2 },
-        hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
-        ],
-        yaxis: 'y2',
-        showlegend: false
-      };
 
       // Label trace (Full)
       const traceIdealFullLabel = {
