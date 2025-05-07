@@ -114,14 +114,16 @@
     const gridSize = 50;
     const dragElement = (element, header) => {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      header.onmousedown = dragMouseDown;
-      function dragMouseDown(e) {
+      header.onpointerdown = dragPointerDown;
+      
+      function dragPointerDown(e) {
         e.preventDefault();
         pos3 = e.clientX;
         pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+        document.onpointerup = closeDragElement;
+        document.onpointermove = elementDrag;
       }
+
       function elementDrag(e) {
         e.preventDefault();
         pos1 = pos3 - e.clientX;
@@ -184,7 +186,7 @@
         y: dayData.map(d => d.mel),
         mode: 'lines+markers',
         type: 'scatter',
-        name: 'Melanopic Lux (Evening-time)',
+        name: 'Melanopic Lux',
         yaxis: 'y1',
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' }
@@ -198,7 +200,8 @@
         name: 'Melanopic Lux (Full)',
         yaxis: 'y2',
         line: { color: '#FAAB36' },
-        marker: { color: '#FAAB36' }
+        marker: { color: '#FAAB36' },
+        showlegend: false,
       };
 
       // Shared x-values and hover text for both traces
@@ -215,7 +218,7 @@
         x: idealX,
         y: idealY.map((v, i) => v <= 10 ? v : null), // Filter only zoom-relevant lines
         mode: 'lines',
-        name: '',
+        name: 'Ideal Exposure',
         line: { dash: 'dot', color: '#F78104', width: 2 },
         hoverinfo: 'text',
         text: [ null, null,
@@ -226,7 +229,6 @@
     //      "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
         ],
         yaxis: 'y1',
-        showlegend: false
       };
 
       // Hover-only trace (Full)
@@ -327,7 +329,7 @@
         title: `Melanopic Lux on ${date}`,
         grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
         paper_bgcolor: '#008083',
-        plot_bgcolor: '#008083',
+        plot_bgcolor: 'transparent',
         font: { family: 'Helvetica Neue', size: 14, color: '#ffffff' },
         xaxis: {
           title: 'Time',
