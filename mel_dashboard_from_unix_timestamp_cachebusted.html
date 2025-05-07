@@ -488,17 +488,15 @@
         populateControls();
       }
     });
-  </script>
-
-  <script>
+ 
     // Gauge window + live update logic
   
     const gaugeWindow = document.createElement("div");
     gaugeWindow.id = "gauge-window";
     gaugeWindow.style.cssText = `
       position: absolute;
-      top: 200px;
-      left: 150px;
+      top: 900px;
+      left: 100px;
       width: 400px;
       height: 300px;
       background: #fff;
@@ -544,8 +542,8 @@
           axis: { range: [0, 1000] },
           bar: { color: "#888" },
           steps: [
-            { range: [0, 150], color: "#F08080" },
-            { range: [150, 250], color: "#FBC16A" },
+            { range: [0, 150], color: "#FD5901" },
+            { range: [150, 250], color: "#FAAB36" },
             { range: [250, 1000], color: "#8FD694" }
           ],
           shape: "angular"
