@@ -31,7 +31,7 @@
       transform: scale(1.01);
     }
 
-    }
+    
     #dashboard-header {
       padding: 10px;
       background-color: #FD5901; /* strong orange */
@@ -90,7 +90,7 @@
 </head>
 <body>
   <div id="dashboard-window">
-    <div id="dashboard-header">Melanopic Lux Dashboard</div>
+    <div id="dashboard-header">  Melanopic Lux Dashboard</div>
     <div id="controls">
       <label for="date-select">Select Date:</label>
       <select id="date-select"></select>
@@ -110,6 +110,8 @@
   </div>
 
   <script>
+    // Snap to 20px grid during drag
+    const gridSize = 20;
     const dragElement = (element, header) => {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
       header.onmousedown = dragMouseDown;
@@ -126,8 +128,10 @@
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
+        const newTop = element.offsetTop - pos2;
+        const newLeft = element.offsetLeft - pos1;
+        element.style.top = Math.round(newTop / gridSize) * gridSize + "px";
+        element.style.left = Math.round(newLeft / gridSize) * gridSize + "px";
       }
       function closeDragElement() {
         document.onmouseup = null;
@@ -135,6 +139,17 @@
       }
     };
     dragElement(document.getElementById("dashboard-window"), document.getElementById("dashboard-header"));
+
+    // Snap resize
+    const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        const el = entry.target;
+        el.style.width = Math.round(el.offsetWidth / gridSize) * gridSize + "px";
+        el.style.height = Math.round(el.offsetHeight / gridSize) * gridSize + "px";
+        Plotly.Plots.resize(document.getElementById('chart'));
+      }
+    });
+    resizeObserver.observe(document.getElementById("dashboard-window"));
 
     const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv";
     const csvUrl = baseUrl + "&cb=" + Date.now();
@@ -169,7 +184,7 @@
         y: dayData.map(d => d.mel),
         mode: 'lines+markers',
         type: 'scatter',
-        name: 'Melanopic Lux (Zoomed)',
+        name: 'Melanopic Lux (Evening-time)',
         yaxis: 'y1',
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' }
@@ -281,7 +296,7 @@
           ]
         },
         yaxis: {
-          title: '0–15 Lux (Zoomed)',
+          title: '0–15 Lux (Evening-Time)',
           range: [0, 15],
           domain: [0.75, 1],
           gridcolor: '#e0e0e0'
