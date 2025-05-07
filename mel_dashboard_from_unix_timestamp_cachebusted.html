@@ -489,5 +489,77 @@
       }
     });
   </script>
+
+  <script>
+    // Gauge window + live update logic
+  
+    const gaugeWindow = document.createElement("div");
+    gaugeWindow.id = "gauge-window";
+    gaugeWindow.style.cssText = `
+      position: absolute;
+      top: 200px;
+      left: 150px;
+      width: 400px;
+      height: 300px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 999;
+    `;
+    gaugeWindow.innerHTML = `
+      <div id="gauge-header" style="
+        background: #FD5901;
+        color: white;
+        padding: 8px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-weight: bold;
+        cursor: move;">
+        Exposure Quality (Last 3 hrs)
+      </div>
+      <div id="gauge-chart" style="width: 100%; height: calc(100% - 40px);"></div>
+    `;
+    document.body.appendChild(gaugeWindow);
+  
+    dragElement(gaugeWindow, document.getElementById("gauge-header"));
+  
+    function drawLiveGauge() {
+      const now = new Date();
+      const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+  
+      const recentData = parsedData.filter(d =>
+        d.datetime >= threeHoursAgo && d.datetime <= now
+      );
+  
+      if (recentData.length === 0) return;
+  
+      const avgMel = recentData.reduce((sum, d) => sum + d.mel, 0) / recentData.length;
+  
+      Plotly.react("gauge-chart", [{
+        type: "indicator",
+        mode: "gauge+number",
+        value: avgMel,
+        title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
+        gauge: {
+          axis: { range: [0, 1000] },
+          bar: { color: "#888" },
+          steps: [
+            { range: [0, 150], color: "#F08080" },
+            { range: [150, 250], color: "#FBC16A" },
+            { range: [250, 1000], color: "#8FD694" }
+          ],
+          shape: "angular"
+        }
+      }], {
+        margin: { t: 50, b: 0 },
+        paper_bgcolor: "#fff",
+        height: 260
+      }, { displayModeBar: false });
+    }
+  
+    setInterval(drawLiveGauge, 60000);
+    setTimeout(drawLiveGauge, 2000);
+  </script>
+
 </body>
 </html>
