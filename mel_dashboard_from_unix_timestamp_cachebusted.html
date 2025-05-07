@@ -200,90 +200,63 @@
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' }
       };
-
+      // Helper to create dense line points
+      function generateLinePoints(start, end, yValue, label) {
+        const points = [];
+        const step = (end - start) / 100;
+        for (let i = 0; i <= 100; i++) {
+          points.push(new Date(start.getTime() + i * step));
+        }
+        return {
+          x: points,
+          y: points.map(() => yValue),
+          text: points.map(() => label)
+        };
+      }
       // Shared x-values and hover text for both traces
       const idealX = [
         new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
         new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
         new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
       ];
-      const idealY = [1, 1, 250, 250, 10, 10];
-
-
-      // Hover-only trace (Zoomed)
+      const hover1 = generateLinePoints(idealX[0], idealX[1], 1, "maximum 1 lux when sleeping");
+      const hover2 = generateLinePoints(idealX[4], idealX[5], 10, "maximum 10 lux for at least 3 hours before sleeping");
+      const hover3 = generateLinePoints(idealX[2], idealX[3], 250, "minimum 250 lux during daytime (ideally before noon)");
+    
       const traceIdealZoomedHover = {
-        x: idealX,
-        y: idealY.map((v, i) => v <= 10 ? v : null), // Filter only zoom-relevant lines
+        x: [...hover1.x, ...hover2.x],
+        y: [...hover1.y, ...hover2.y],
         mode: 'lines',
         name: '',
-        line: { dash: 'dot', color: '#F78104', width: 2 },
+        line: { dash: 'dot', color: '#F78104', width: 4 },
         hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          null, null,
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
-        ],
+        text: [...hover1.text, ...hover2.text],
         yaxis: 'y1',
-        showlegend: false
-      };
-      
-      // Label trace (Zoomed)
-      const traceIdealZoomedLabel = {
-        x: idealX,
-        y: idealY.map((v, i) => v <= 10 ? v : null),
-        mode: 'text',
-        name: '',
-        text: [
-          "Ideal: ≤1 lux (sleeping)", "Ideal: ≤1 lux (sleeping)",
-          null, null,
-          "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
-        ],
-        textposition: 'top center',
-        hoverinfo: 'skip',
-        yaxis: 'y1',
-        showlegend: false
-      };
-      
-      // Hover-only trace (Full)
-      const traceIdealFullHover = {
-        x: idealX,
-        y: idealY,
-        mode: 'lines',
-        name: '',
-        line: { dash: 'dot', color: '#F78104', width: 2 },
-        hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
-        ],
-        yaxis: 'y2',
-        showlegend: false
-      };
-      
-      // Label trace (Full)
-      const traceIdealFullLabel = {
-        x: idealX,
-        y: idealY,
-        mode: 'text',
-        name: '',
-        text: [
-          "Ideal: ≤1 lux (sleeping)", "Ideal: ≤1 lux (sleeping)",
-          "Ideal: ≥250 lux (daytime)", "Ideal: ≥250 lux (daytime)",
-          "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
-        ],
-        textposition: 'top center',
-        hoverinfo: 'skip',
-        yaxis: 'y2',
-        showlegend: false
+        showlegend: false,
+        hoveron: 'points+fills',
+        hoverlabel: { bgcolor: '#F78104', font: { color: 'white' } }
       };
 
+      const traceIdealFullHover = {
+        x: [...hover1.x, ...hover2.x, ...hover3.x],
+        y: [...hover1.y, ...hover2.y, ...hover3.y],
+        mode: 'lines',
+        name: '',
+        line: { dash: 'dot', color: '#F78104', width: 4 },
+        hoverinfo: 'text',
+        text: [...hover1.text, ...hover2.text, ...hover3.text],
+        yaxis: 'y2',
+        showlegend: false,
+        hoveron: 'points+fills',
+        hoverlabel: { bgcolor: '#F78104', font: { color: 'white' } }
+      };
 
       const layout = {
         title: `Melanopic Lux on ${date}`,
+        hovermode: 'x unified',
         grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
         paper_bgcolor: '#008083',
-        plot_bgcolor: '#008083',
+        plot_bgcolor: '#ffffff',
         font: { family: 'Helvetica Neue', size: 14, color: '#ffffff' },
         xaxis: {
           title: 'Time',
@@ -308,54 +281,42 @@
           orientation: 'h',
           y: -0.2
         },
+
+        annotations: [
+          { x: new Date(`${date}T01:00:00`), y: 1, yref: 'y', text: 'Ideal: ≤1 lux (sleeping)', showarrow: false, font: { color: '#ffffff', size: 12 }, align: 'center' },
+          { x: new Date(`${date}T20:00:00`), y: 10, yref: 'y', text: 'Ideal: ≤10 lux (evening)', showarrow: false, font: { color: '#ffffff', size: 12 }, align: 'center' },
+          { x: new Date(`${date}T01:00:00`), y: 1, yref: 'y2', text: 'Ideal: ≤1 lux (sleeping)', showarrow: false, font: { color: '#ffffff', size: 12 }, align: 'center' },
+          { x: new Date(`${date}T10:00:00`), y: 250, yref: 'y2', text: 'Ideal: ≥250 lux (daytime)', showarrow: false, font: { color: '#ffffff', size: 12 }, align: 'center' },
+          { x: new Date(`${date}T20:00:00`), y: 10, yref: 'y2', text: 'Ideal: ≤10 lux (evening)', showarrow: false, font: { color: '#ffffff', size: 12 }, align: 'center' }
+        ],
         shapes: [
           {
             type: 'rect',
-            xref: 'paper',
-            yref: 'paper',
-            x0: 0,
-            x1: 1,
-            y0: 0.75,
-            y1: 1,
-            fillcolor: '#161f28',  // midnight blue for zoomed subplot
-            opacity: 0.2,
-            layer: 'below',
-            line: { width: 0 }
+            xref: 'paper', yref: 'paper',
+            x0: 0, x1: 1, y0: 0.75, y1: 1,
+            fillcolor: '#161f28', opacity: 0.2, layer: 'below', line: { width: 0 }
           },
           {
             type: 'rect',
-            xref: 'paper',
-            yref: 'paper',
-            x0: 0,
-            x1: 1,
-            y0: 0,
-            y1: 0.75,
-            fillcolor: '#FFF7E1',  // light yellow for full subplot
-            opacity: 0.2,
-            layer: 'below',
-            line: { width: 0 }
+            xref: 'paper', yref: 'paper',
+            x0: 0, x1: 1, y0: 0, y1: 0.75,
+            fillcolor: '#FFF7E1', opacity: 0.2, layer: 'below', line: { width: 0 }
           }
         ]
       };
-
     
       Plotly.newPlot(
         'chart',
-        [
-          trace1, trace2,
-          traceIdealZoomedHover, traceIdealZoomedLabel,
-          traceIdealFullHover, traceIdealFullLabel
-        ],
+        [trace1, trace2, traceIdealZoomedHover, traceIdealFullHover],
         layout,
         { scrollZoom: true, responsive: true }
       );
-      // Automatically resize the chart with the container
+    
       const chartContainer = document.getElementById('chart');
       const resizeObserver = new ResizeObserver(() => {
         Plotly.Plots.resize(chartContainer);
       });
       resizeObserver.observe(document.getElementById('dashboard-window'));
-
     }
 
     function populateControls() {
