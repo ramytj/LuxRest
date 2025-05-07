@@ -164,6 +164,28 @@
         line: { color: '#FAAB36' },  // yellow
         marker: { color: '#FAAB36' }
       };
+      const idealTrace = {
+        x: [
+          new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
+          new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
+          new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
+        ],
+        y: [
+          1, 1,      // midnight–6am
+          250, 250,  // 6am–6pm
+          10, 10     // 6pm–midnight
+        ],
+        mode: 'lines',
+        name: 'Ideal Exposure',
+        line: { dash: 'dot', color: '#F78104', width: 2 },
+        hoverinfo: 'text',
+        text: [
+          "1 lux max (sleeping)", "1 lux max (sleeping)",
+          "≥ 250 lux (daytime)", "≥ 250 lux (daytime)",
+          "10 lux max (evening)", "10 lux max (evening)"
+        ],
+        showlegend: true
+      };
 
       const layout = {
         title: `Melanopic Lux on ${date}`,
@@ -186,7 +208,7 @@
         }
       };
 
-      Plotly.newPlot('chart', [trace], layout, { scrollZoom: true, responsive: true });
+      Plotly.newPlot('chart', [idealTrace, trace], layout, { scrollZoom: true, responsive: true });
     }
 
     function populateControls() {
