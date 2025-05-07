@@ -218,10 +218,12 @@
         name: '',
         line: { dash: 'dot', color: '#F78104', width: 2 },
         hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          null, null,
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        text: [ null, null,
+               null, null,
+               null, null
+    //      "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+    //      null, null,
+    //      "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
         ],
         yaxis: 'y1',
         showlegend: false
@@ -235,10 +237,12 @@
         name: '',
         line: { dash: 'dot', color: '#F78104', width: 2 },
         hoverinfo: 'text',
-        text: [
-          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
-          "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
-          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        text: [ null, null,
+               null, null,
+               null, null
+      //    "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+      //    "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
+       //   "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
         ],
         yaxis: 'y2',
         showlegend: false
@@ -287,7 +291,7 @@
         y: [1, 1, 1, 10, 10, 10],
         mode: 'markers',
         type: 'scatter',
-        marker: { size: 8, color: '#F78104', symbol: 'circle-open' },
+        marker: { size: 8, color: '#F78104', symbol: 'circle-open', opacity: 0},
         text: [
           "maximum 1 lux when sleeping", "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
           "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
@@ -307,7 +311,7 @@
         y: [1, 1, 1, 250, 250, 250, 10, 10, 10],
         mode: 'markers',
         type: 'scatter',
-        marker: { size: 8, color: '#F78104', symbol: 'circle-open' },
+        marker: { size: 8, color: '#F78104', symbol: 'circle-open', opacity: 0},
         text: [
           "maximum 1 lux when sleeping", "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
           "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
