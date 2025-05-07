@@ -114,32 +114,31 @@
     const gridSize = 50;
     const dragElement = (element, header) => {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      header.onpointerdown = dragPointerDown;
-      
-      function dragPointerDown(e) {
+    
+      header.onpointerdown = (e) => {
         e.preventDefault();
         pos3 = e.clientX;
         pos4 = e.clientY;
-        document.onpointerup = closeDragElement;
-        document.onpointermove = elementDrag;
-      }
-
-      function elementDrag(e) {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        const newTop = element.offsetTop - pos2;
-        const newLeft = element.offsetLeft - pos1;
-        element.style.top = Math.round(newTop / gridSize) * gridSize + "px";
-        element.style.left = Math.round(newLeft / gridSize) * gridSize + "px";
-      }
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
+    
+        const pointerMove = (e) => {
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          element.style.top = (element.offsetTop - pos2) + "px";
+          element.style.left = (element.offsetLeft - pos1) + "px";
+        };
+    
+        const pointerUp = () => {
+          document.removeEventListener('pointermove', pointerMove);
+          document.removeEventListener('pointerup', pointerUp);
+        };
+    
+        document.addEventListener('pointermove', pointerMove);
+        document.addEventListener('pointerup', pointerUp);
+      };
     };
+
     dragElement(document.getElementById("dashboard-window"), document.getElementById("dashboard-header"));
 
     // Snap resize
