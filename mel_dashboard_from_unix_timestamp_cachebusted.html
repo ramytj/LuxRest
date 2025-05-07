@@ -275,22 +275,22 @@
       header: true,
       skipEmptyLines: true,
       complete: function(results) {
+
         parsedData = results.data.map(row => {
           const ts = parseInt((row['timestamp'] || '').trim());
           const mel = parseFloat((row['mel'] || '').trim());
           if (isNaN(ts) || isNaN(mel)) return null;
-
-          const utc = new Date(ts * 1000);
-          const est = new Date(utc.getTime() - (5 * 60 * 60 * 1000));
-          const dateStr = est.toISOString().split('T')[0];
-
+        
+          const local = new Date(ts * 1000); // Uses browser's local timezone automatically
+          const dateStr = local.toISOString().split('T')[0];
+        
           return {
-            datetime: est,
+            datetime: local,
             dateStr: dateStr,
             mel: mel
           };
         }).filter(r => r !== null);
-
+        
         populateControls();
       }
     });
