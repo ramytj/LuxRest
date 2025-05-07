@@ -187,29 +187,44 @@
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' }
       };
-    // Optional: Ideal exposure trace (adjust yaxis if needed)
-      const traceIdeal = {
-        x: [
-          new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
-          new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
-          new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
-        ],
-        y: [
-          1, 1,
-          250, 250,
-          10, 10
-        ],
-        mode: 'lines',
-        name: 'Ideal Exposure',
+
+      // Shared x-values and hover text for both traces
+      const idealX = [
+        new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
+        new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
+        new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
+      ];
+      const idealY = [1, 1, 250, 250, 10, 10];
+      const idealText = [
+        "1 lux max (sleeping)", "1 lux max (sleeping)",
+        "≥ 250 lux (daytime)", "≥ 250 lux (daytime)",
+        "10 lux max (evening)", "10 lux max (evening)"
+      ];
+      
+      const traceIdealZoomed = {
+        x: idealX,
+        y: idealY,
+        mode: 'lines+text',
+        name: 'Ideal (Zoomed)',
         line: { dash: 'dot', color: '#F78104', width: 2 },
+        text: idealText,
         hoverinfo: 'text',
-        text: [
-          "1 lux max (sleeping)", "1 lux max (sleeping)",
-          "≥ 250 lux (daytime)", "≥ 250 lux (daytime)",
-          "10 lux max (evening)", "10 lux max (evening)"
-        ],
+        textposition: 'top center',
+        yaxis: 'y1'
+      };
+      
+      const traceIdealFull = {
+        x: idealX,
+        y: idealY,
+        mode: 'lines+text',
+        name: 'Ideal (Full)',
+        line: { dash: 'dot', color: '#F78104', width: 2 },
+        text: idealText,
+        hoverinfo: 'text',
+        textposition: 'top center',
         yaxis: 'y2'
       };
+
 
       const layout = {
         title: `Melanopic Lux on ${date}`,
@@ -245,7 +260,7 @@
         }
       };
     
-      Plotly.newPlot('chart', [trace1, trace2, traceIdeal], layout, { scrollZoom: true, responsive: true });
+      Plotly.newPlot('chart', [trace1, trace2, traceIdealZoomed, traceIdealFull], layout, { scrollZoom: true, responsive: true });
     }
 
     function populateControls() {
