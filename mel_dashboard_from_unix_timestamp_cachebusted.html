@@ -495,7 +495,7 @@
     gaugeWindow.id = "gauge-window";
     gaugeWindow.style.cssText = `
       position: absolute;
-      top: 900px;
+      top: 1000px;
       left: 100px;
       width: 400px;
       height: 300px;
@@ -555,8 +555,9 @@
       }, { displayModeBar: false });
     }
   
-    setInterval(drawLiveGauge, 60000);
-    setTimeout(drawLiveGauge, 2000);
+    populateControls();
+    drawLiveGauge();  // ✅ moved here to run after data is loaded
+
   </script>
 
 </body>
