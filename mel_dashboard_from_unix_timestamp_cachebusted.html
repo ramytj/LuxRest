@@ -13,7 +13,7 @@
       height: 100vh;
     }
     #dashboard-window {
-      width: 800px;
+      width: 1200px;
       height: 800px;
       border: 1px solid #ccc;
       border-radius: 10px;
@@ -269,6 +269,11 @@
         hoverinfo: 'skip',
         yaxis: 'y1',
         showlegend: false
+        textfont: {
+          color: '#FFF7E1',
+          size: 10,         // or another smaller value
+          family: 'Arial'   // use a regular font family (avoid bold fonts like Helvetica Neue Bold)
+        }
       };
 
 
@@ -286,7 +291,12 @@
         textposition: 'top center',
         hoverinfo: 'skip',
         yaxis: 'y2',
-        showlegend: false
+        showlegend: false,
+        textfont: {
+          color: '#161f28',
+          size: 10,         // or another smaller value
+          family: 'Arial'   // use a regular font family (avoid bold fonts like Helvetica Neue Bold)
+        }
       };
       // Hover points for Zoomed subplot (only ≤10 lux periods)
       const traceIdealZoomedMarkers = {
