@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      background: #005F60; /* deep teal */
       margin: 0;
       height: 100vh;
     }
@@ -19,13 +19,13 @@
       position: absolute;
       top: 100px;
       left: 100px;
-      background: white;
+      background: #FAAB36;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       z-index: 1000;
     }
     #dashboard-header {
       padding: 10px;
-      background-color: #2f80ed;
+      background-color: #FD5901; /* strong orange */
       color: white;
       cursor: move;
       font-weight: bold;
@@ -40,12 +40,43 @@
       margin-right: 10px;
     }
     #chart-container {
+      background: #ffffff;
       padding: 20px;
     }
     #error-msg {
       color: red;
       padding: 0 20px 20px 20px;
     }
+    
+    select {
+      padding: 6px 12px;
+      background-color: #FAAB36;  /* soft orange */
+      border: 1px solid #F78104;  /* deeper orange border */
+      border-radius: 5px;
+      color: #000;                /* dark text for contrast */
+      font-weight: bold;
+    }
+    
+    select:hover {
+      background-color: #F78104;  /* hover: deeper orange */
+      cursor: pointer;
+    }
+    
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4); /* orange glow */
+    }
+    select {
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #dashboard-window {
+      transition: transform 0.2s ease;
+    }
+    #dashboard-window:active {
+      transform: scale(1.01);
+    }
+
+
   </style>
 </head>
 <body>
@@ -129,14 +160,16 @@
         y: dayData.map(d => d.mel),
         mode: 'lines+markers',
         type: 'scatter',
-        name: 'Melanopic Lux'
+        name: 'Melanopic Lux',
+        line: { color: '#249EA0' },  // light teal
+        marker: { color: '#249EA0' }
       };
 
       const layout = {
         title: `Melanopic Lux on ${date}`,
-        paper_bgcolor: '#ffffff',
-        plot_bgcolor: '#ffffff',
-        font: { family: 'Helvetica Neue', size: 14 },
+        paper_bgcolor: '#008083',
+        plot_bgcolor: '#008083',
+        font: { family: 'Helvetica Neue', size: 14, color: '#ffffff' },
         xaxis: {
           title: 'Time',
           gridcolor: '#e0e0e0',
@@ -170,7 +203,7 @@
         opt.textContent = date;
         dateSelect.appendChild(opt);
       });
-      dateSelect.value = uniqueDates[0];
+      dateSelect.value = uniqueDates[uniqueDates.length - 1];
 
       dateSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
       resolutionSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
