@@ -5,6 +5,13 @@
   <title>Live Melanopic Lux Dashboard (Cache-Busting Enabled)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  
+  <script>
+    // ✅ Global declarations must go inside <script>
+    let parsedData = [];
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv&cb=" + Date.now();
+  </script>
+  
   <style>
     @media (max-width: 768px) {
       #dashboard-window {
@@ -172,9 +179,7 @@
     dragElement(document.getElementById("dashboard-window"), document.getElementById("dashboard-header"));
 
 
-    const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv";
-    const csvUrl = baseUrl + "&cb=" + Date.now();
-    let parsedData = [];
+
 
     function groupByResolution(data, resolutionMinutes) {
       const grouped = {};
@@ -488,7 +493,9 @@
         populateControls();
       }
     });
- 
+  </script>
+  <script>
+
     // Gauge window + live update logic
   
     const gaugeWindow = document.createElement("div");
@@ -555,9 +562,32 @@
       }, { displayModeBar: false });
     }
   
-    populateControls();
-    drawLiveGauge();  // ✅ moved here to run after data is loaded
+  Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
 
+        parsedData = results.data.map(row => {
+          const ts = parseInt((row['timestamp'] || '').trim());
+          const mel = parseFloat((row['mel'] || '').trim());
+          if (isNaN(ts) || isNaN(mel)) return null;
+
+          const local = new Date(ts * 1000); // Uses browser's local timezone automatically
+          const dateStr = local.toISOString().split('T')[0];
+
+          return {
+            datetime: local,
+            dateStr: dateStr,
+            mel: mel
+          };
+        }).filter(r => r !== null);
+
+        drawLiveGauge();  // ✅ moved here to run after data is loaded
+        setInterval(drawLiveGauge, 60000);  // updates every 60 seconds
+
+      }
+    });
   </script>
 
 </body>
