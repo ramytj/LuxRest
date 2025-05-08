@@ -546,7 +546,27 @@
         }], {
           margin: { t: 50, b: 0 },
           paper_bgcolor: "#fff",
-          height: 260
+          height: 260,
+          annotations: [
+            {
+              x: 0.15, y: 0.2,
+              text: "Low",
+              showarrow: false,
+              font: { size: 14, color: "#FD5901" }
+            },
+            {
+              x: 0.5, y: 0.2,
+              text: "Borderline",
+              showarrow: false,
+              font: { size: 14, color: "#FAAB36" }
+            },
+            {
+              x: 0.85, y: 0.2,
+              text: "Good",
+              showarrow: false,
+              font: { size: 14, color: "#4CAF50" }
+            }
+          ]
         }, { displayModeBar: false });
       
         return;
