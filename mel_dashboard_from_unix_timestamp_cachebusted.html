@@ -122,34 +122,46 @@
       font-weight: bold;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
+    #dashboard-area {
+      position: relative;
+      margin: 100px auto;
+      width: calc(1200px + 200px); /* 1200px chart + 100px padding both sides */
+      height: 1000px;
+      padding: 100px;
+      border: 2px dashed #ccc;
+      background-color: #004b4c;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
 
 
   </style>
 </head>
 <body>
-  <div id="dashboard-window">
-    <div id="dashboard-header">  Melanopic Lux Dashboard</div>
-    <div id="controls">
-      <label for="date-select">Select Date:</label>
-      <select id="date-select"></select>
-
-      <label for="resolution-select">Resolution:</label>
-      <select id="resolution-select">
-        <option value="5">Every 5 minutes</option>
-        <option value="15">Every 15 minutes</option>
-        <option value="60" selected>Hourly</option>
-        <option value="360">Every 6 hours</option>
-      </select>
-    </div>
-    <div id="chart-container">
-      <div id="chart"></div>
-      <div id="error-msg"></div>
+  <div id="dashboard-area" style="position: relative; width: calc(100vw - 200px); height: calc(100vh - 200px); margin: 100px; border: 1px solid #ccc;">
+    <div id="dashboard-window">
+      <div id="dashboard-header">  Melanopic Lux Dashboard</div>
+      <div id="controls">
+        <label for="date-select">Select Date:</label>
+        <select id="date-select"></select>
+  
+        <label for="resolution-select">Resolution:</label>
+        <select id="resolution-select">
+          <option value="5">Every 5 minutes</option>
+          <option value="15">Every 15 minutes</option>
+          <option value="60" selected>Hourly</option>
+          <option value="360">Every 6 hours</option>
+        </select>
+      </div>
+      <div id="chart-container">
+        <div id="chart"></div>
+        <div id="error-msg"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Snap to 20px grid during drag
     const dragElement = (element, header) => {
       const gridSize = 100;
       let offsetX = 0, offsetY = 0, isDragging = false;
@@ -162,10 +174,21 @@
     
         document.onpointermove = (e) => {
           if (!isDragging) return;
+    
           const newLeft = Math.round((e.clientX - offsetX) / gridSize) * gridSize;
           const newTop = Math.round((e.clientY - offsetY) / gridSize) * gridSize;
-          element.style.left = `${newLeft}px`;
-          element.style.top = `${newTop}px`;
+    
+          const area = document.getElementById("dashboard-area");
+          if (!area || area.offsetWidth === 0 || area.offsetHeight === 0) return;
+    
+          const maxX = area.offsetWidth - element.offsetWidth;
+          const maxY = area.offsetHeight - element.offsetHeight;
+    
+          const boundedLeft = Math.max(0, Math.min(newLeft, maxX));
+          const boundedTop = Math.max(0, Math.min(newTop, maxY));
+    
+          element.style.left = `${boundedLeft}px`;
+          element.style.top = `${boundedTop}px`;
         };
     
         document.onpointerup = () => {
@@ -175,7 +198,12 @@
         };
       };
     };
-    dragElement(document.getElementById("dashboard-window"), document.getElementById("dashboard-header"));
+    
+    // Usage
+    dragElement(
+      document.getElementById("dashboard-window"),
+      document.getElementById("dashboard-header")
+    );
 
 
 
@@ -654,6 +682,20 @@
       }
     });
   </script>
+  <footer style="margin-top: 40px; padding: 20px; background-color: #004b4c; color: white; font-size: 14px; text-align: center;">
+    <div style="max-width: 900px; margin: auto;">
+      <p><strong>About LuxRest</strong><br>
+      LuxRest is a research-based platform designed to help individuals monitor and improve their light exposure patterns for better sleep and circadian health. This project is part of an academic study conducted by Drexel University’s Architectural Engineering program.</p>
+  
+      <p><strong>Contact</strong><br>
+      For questions or collaborations, email us at <a href="mailto:ramytj@drexel.edu" style="color:#FFA500;">ramytj@drexel.edu</a>.</p>
+  
+      <p><strong>Disclaimer</strong><br>
+      This dashboard is for informational and research purposes only. It does not provide medical advice and should not be used to diagnose, treat, or prevent any medical condition. Use of this site implies agreement with our research terms.</p>
+  
+      <p style="margin-top:10px;">© 2025 LuxRest Research Team</p>
+    </div>
+  </footer>
 
 </body>
 </html>
