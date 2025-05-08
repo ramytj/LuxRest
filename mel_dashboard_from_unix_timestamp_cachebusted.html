@@ -521,11 +521,20 @@
         Plotly.react("gauge-chart", [{
           type: "indicator",
           mode: "gauge+number",
-          value: null,
-          number: { valueformat: "", font: { size: 16 }, prefix: "No recent data" },
+          value: 0,
+          number: {
+            valueformat: "",
+            font: { size: 20 },
+            suffix: "No recent data",  // acts as the full label
+            color: "#999"
+          },          title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
           title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
           gauge: {
-            axis: { range: [0, 1000] },
+            axis: {
+              range: [0, 1000],
+              tickvals: [0, 150, 250, 500, 1000],  // Show ticks at key thresholds
+              ticktext: ["0", "150", "250", "500", "1000"]
+            },            
             bar: { color: "transparent" }, // hide the pointer
             steps: [
               { range: [0, 150], color: "#FD5901" },
@@ -551,7 +560,11 @@
         value: avgMel,
         title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
         gauge: {
-          axis: { range: [0, 1000] },
+          axis: {
+            range: [0, 1000],
+            tickvals: [0, 150, 250, 500, 1000],  // Show ticks at key thresholds
+            ticktext: ["0", "150", "250", "500", "1000"]
+          },
           bar: { color: "#888" },
           steps: [
             { range: [0, 150], color: "#FD5901" },
