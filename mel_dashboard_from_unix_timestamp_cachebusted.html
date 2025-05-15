@@ -515,7 +515,7 @@
     gaugeWindow.id = "gauge-window";
     gaugeWindow.style.cssText = `
       position: absolute;
-      top: 100;
+      top: 100px;
       left: 100px;
       width: 600px;
       height: 400px;
@@ -537,7 +537,7 @@
       </div>
       <div id="gauge-chart" style="width: 100%; height: calc(100% - 40px);"></div>
     `;
-    document.body.appendChild(gaugeWindow);
+    document.getElementById("dashboard-area").appendChild(gaugeWindow);
   
     dragElement(gaugeWindow, document.getElementById("gauge-header"));
   
