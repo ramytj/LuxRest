@@ -140,6 +140,16 @@
   </style>
 </head>
 <body>
+  <script>
+    const password = prompt("Enter password to view the dashboard:");
+
+    // Set your desired password here
+    if (password !== "luxrest123") {
+      document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:20%;'>Access Denied</h2>";
+      throw new Error("Access denied");
+    }
+  </script>
+  
   <div id="dashboard-area" style="
     position: relative;
     width: 2100px;
