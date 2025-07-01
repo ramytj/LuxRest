@@ -615,8 +615,8 @@
             font: { size: 20 },
             suffix: "No recent data",  // acts as the full label
             color: "#999"
-          },          title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
-          title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
+          },          
+          title: { text: "", font: { size: 16 } },
           gauge: {
             axis: {
               range: [0, 200],
@@ -637,6 +637,15 @@
           paper_bgcolor: "#fff",
           height: 260,
           annotations: [
+            {
+              x: 0.5,    // center horizontally
+              y: 0.85,   // adjust vertical placement (0 to 1)
+              xref: "paper",
+              yref: "paper",
+              text: "Melanopic Lux (Last 3 hrs)",
+              showarrow: false,
+              font: { size: 16, color: "#333" }
+            },
             {
               x: 0.17, y: 0.13,
               text: "Low",
@@ -670,7 +679,7 @@
         type: "indicator",
         mode: "gauge+number",
         value: avgMel,
-        title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
+        title: { text: "", font: { size: 16 } },
         gauge: {
           axis: {
             range: [0, 200],
@@ -691,6 +700,15 @@
         paper_bgcolor: "#fff",
         height: 260,
         annotations: [
+          {
+            x: 0.5,    // center horizontally
+            y: 0.85,   // adjust vertical placement (0 to 1)
+            xref: "paper",
+            yref: "paper",
+            text: "Melanopic Lux (Last 3 hrs)",
+            showarrow: false,
+            font: { size: 16, color: "#333" }
+          },
           {
             x: 0.17, y: 0.13,
             text: "Low",
