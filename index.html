@@ -447,7 +447,10 @@
 
 
       const layout = {
-        title: `Melanopic Lux on ${date}`,
+        title: {
+          text: `Melanopic Lux on ${date}<br><span style="color:red; font-size:12px;">(double click to go back to default zoom)</span>`,
+          font: { size: 18 }
+        },
         grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
         paper_bgcolor: '#008083',
         plot_bgcolor: 'transparent',
