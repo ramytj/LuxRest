@@ -21,11 +21,11 @@
 
     #dashboard-area {
       position: relative;
-      margin: 50px auto;
-      width: 90vw;              /* responsive width */
+      margin: 20px auto;
+      width: 95vw;              /* responsive width */
       max-width: 1400px;        /* cap max width on large screens */
       height: auto;
-      padding: 40px;
+      padding: 20px;
       background-color: #004f50;
       border-radius: 20px;
       box-shadow:
@@ -34,7 +34,7 @@
         0 10px 30px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-sizing: border-box;
-      overflow: hidden;
+      overflow: visible;
     }
 
     #dashboard-window {
@@ -136,6 +136,14 @@
         font-size: 18px;
         padding: 10px 14px;
       }
+      #gauge-window {
+        position: relative !important;
+        width: 100% !important;
+        left: auto !important;
+        top: auto !important;
+        margin: 20px auto !important;
+        height: auto !important;
+  }
     }
 
   </style>
@@ -556,7 +564,7 @@
     gaugeWindow.id = "gauge-window";
     gaugeWindow.style.cssText = `
       position: absolute;
-      top: 600px;
+      top: 700px;
       left: 100px;
       width: 600px;
       height: 400px;
