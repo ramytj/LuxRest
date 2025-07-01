@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LuxRest Auto Mode Switch</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #toggleButton {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      background: #FAAB36;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="toggleButton">Switch Mode</button>
+  <iframe id="modeFrame" src=""></iframe>
+
+  <script>
+    const dayPage = "1.html";
+    const nightPage = "1_night.html";
+
+    function isDaytime() {
+      const now = new Date();
+      const hour = now.getHours();
+      return hour >= 6 && hour < 18;
+    }
+
+    // Load default mode based on time
+    const iframe = document.getElementById("modeFrame");
+    iframe.src = isDaytime() ? dayPage : nightPage;
+
+    // Handle manual toggle
+    let currentMode = isDaytime() ? "day" : "night";
+
+    document.getElementById("toggleButton").onclick = function() {
+      if (currentMode === "day") {
+        iframe.src = nightPage;
+        currentMode = "night";
+      } else {
+        iframe.src = dayPage;
+        currentMode = "day";
+      }
+    };
+  </script>
+
+</body>
+</html>
