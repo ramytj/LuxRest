@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=1400, initial-scale=1, minimum-scale=0.2, maximum-scale=3, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Melanopic Lux Dashboard (Cache-Busting Enabled)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -11,55 +11,40 @@
     let parsedData = [];
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv&cb=" + Date.now();
   </script>
-  
   <style>
-    @media (max-width: 768px) {
-      #dashboard-window {
-        width: 1200px; /* keep original width */
-        height: auto;
-        left: 0;
-        top: 0;
-        position: relative;
-      }
-  
-      body {
-        overflow-x: scroll;
-      }
-  
-      #dashboard-header {
-        font-size: 18px;
-        padding: 10px;
-      }
-  
-      #controls {
-        font-size: 18px;
-      }
-  
-      select {
-        font-size: 18px;
-        padding: 10px 14px;
-      }
-  
-      #chart-container {
-        height: calc(100% - 90px);
-      }
-    }
-
-
     body {
       font-family: Arial, sans-serif;
       background: #005F60; /* deep teal */
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
     }
+
+    #dashboard-area {
+      position: relative;
+      margin: 50px auto;
+      width: 90vw;              /* responsive width */
+      max-width: 1400px;        /* cap max width on large screens */
+      height: auto;
+      padding: 40px;
+      background-color: #004f50;
+      border-radius: 20px;
+      box-shadow:
+        inset 0 2px 5px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.2),
+        0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
     #dashboard-window {
-      width: 1200px;
-      height: 800px;
+      width: 80%;
+      max-width: 1200px;
+      height: auto;
       border: 1px solid #ccc;
       border-radius: 10px;
-      position: absolute;
-      top: 600px;
-      left: 100px;
+      position: relative;     /* use relative so it flows naturally */
+      margin: 40px auto;
       background: #FAAB36;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       z-index: 1000;
@@ -67,50 +52,34 @@
       resize: both;
       transition: transform 0.2s ease;
     }
+
     #dashboard-window:active {
       transform: scale(1.01);
     }
 
-
     #dashboard-header {
       padding: 10px;
-      background-color: #FD5901; /* strong orange */
+      background-color: #FD5901;
       color: white;
       cursor: move;
       font-weight: bold;
       border-top-left-radius: 10px;
       border-top-right-radius: 10px;
     }
+
     #controls {
       margin: 10px;
     }
 
-
     #chart-container {
-      background-color: transparent; /*light teal*/
+      background-color: transparent;
       border: 1px solid #F78104;
       border-radius: 5px;
       color: #000;
       font-weight: bold;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
       width: 100%;
-      height: calc(100% - 100px); /* leave space for header & controls */
-    }
-    select:hover {
-      background-color: #F78104;
-      cursor: pointer;
-    }
-    select:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4);
-    }
-    #chart {
-      width: 100%;
-      height: 100%;
-    }
-    #error-msg {
-      color: red;
-      padding: 0 20px 20px 20px;
+      height: auto;
     }
 
     select {
@@ -124,27 +93,53 @@
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    #dashboard-area {
-      position: relative;
-      margin: 100px auto;
-      width: 1400px;
-      height: 2000px; /* ✅ updated height */
-      padding: 100px;
-      background-color: #004f50;
-      border-radius: 20px;
-      box-shadow:
-        inset 0 2px 5px rgba(255, 255, 255, 0.1),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.2),
-        0 10px 30px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-sizing: border-box;
-      overflow: hidden;
+    select:hover {
+      background-color: #F78104;
+      cursor: pointer;
     }
 
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4);
+    }
 
+    #chart {
+      width: 100%;
+      height: 100%;
+    }
 
+    #error-msg {
+      color: red;
+      padding: 0 20px 20px 20px;
+    }
+
+    /* ✅ Mobile tweaks */
+    @media (max-width: 768px) {
+      #dashboard-area {
+        padding: 20px;
+      }
+
+      #dashboard-window {
+        width: 100%;
+        margin: 20px auto;
+      }
+
+      #dashboard-header {
+        font-size: 18px;
+      }
+
+      #controls {
+        font-size: 18px;
+      }
+
+      select {
+        font-size: 18px;
+        padding: 10px 14px;
+      }
+    }
 
   </style>
+ 
 </head>
 <body>
   <script>
