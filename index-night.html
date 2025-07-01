@@ -612,9 +612,12 @@
           value: 0,
           number: {
             valueformat: "",
-            font: { size: 20 },
-            suffix: "",  // acts as the full label
-            color: "#999"
+              font: { 
+                size: 36,
+                family: "Arial Black, Arial, sans-serif",
+                color: "#999",
+              },
+              suffix: "",  // acts as the full label
           },          
           title: { text: "", font: { size: 16 } },
           gauge: {
@@ -679,6 +682,15 @@
         type: "indicator",
         mode: "gauge+number",
         value: avgMel,
+        number: {
+          valueformat: "",
+            font: { 
+              size: 36,
+              family: "Arial Black, Arial, sans-serif",
+              color: "#999",
+            },
+            suffix: "",  // acts as the full label
+        },
         title: { text: "", font: { size: 16 } },
         gauge: {
           axis: {
