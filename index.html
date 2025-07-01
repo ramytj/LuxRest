@@ -559,8 +559,7 @@
   </script>
   <script>
 
-    // Gauge window + live update logic
-  
+    // ✅ Gauge window + drag stays the same
     const gaugeWindow = document.createElement("div");
     gaugeWindow.id = "gauge-window";
     gaugeWindow.style.cssText = `
@@ -590,22 +589,51 @@
     document.getElementById("dashboard-area").appendChild(gaugeWindow);
   
     dragElement(gaugeWindow, document.getElementById("gauge-header"));
-
-
+  
     function drawLiveGauge() {
       const now = new Date();
+      const hour = now.getHours();
+      const isDaytime = hour >= 6 && hour < 18;
+  
+      const dayConfig = {
+        axis: {
+          range: [0, 1000],
+          tickvals: [0, 150, 250, 500, 1000],
+          ticktext: ["0", "150", "250", "500", "1000"]
+        },
+        bar: { color: "#888" },
+        steps: [
+          { range: [0, 150], color: "#FD5901" },
+          { range: [150, 250], color: "#FAAB36" },
+          { range: [250, 1000], color: "#8FD694" }
+        ],
+        shape: "angular"
+      };
+  
+      const nightConfig = {
+        axis: {
+          range: [0, 200],
+          tickvals: [0, 1, 10, 50, 200],
+          ticktext: ["0", "1", "10", "50", "200"]
+        },
+        bar: { color: "#888" },
+        steps: [
+          { range: [0, 1], color: "#006400" },
+          { range: [1, 10], color: "#00cc00" },
+          { range: [10, 50], color: "#FFD700" },
+          { range: [50, 200], color: "#FF0000" }
+        ],
+        shape: "angular"
+      };
+  
+      const gaugeConfig = isDaytime ? dayConfig : nightConfig;
+  
       const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-
       const recentData = parsedData.filter(d =>
         d.datetime >= threeHoursAgo && d.datetime <= now
       );
-
- //     if (recentData.length === 0) {
- //       document.getElementById("gauge-chart").innerHTML = "<div style='text-align:center;padding-top:40px;'>No recent data</div>";
-  //      return;
-  //    }
+  
       if (recentData.length === 0) {
-        // show message inside gauge with no pointer
         Plotly.react("gauge-chart", [{
           type: "indicator",
           mode: "gauge+number",
@@ -613,134 +641,37 @@
           number: {
             valueformat: "",
             font: { size: 20 },
-            suffix: "No recent data",  // acts as the full label
+            suffix: "No recent data",
             color: "#999"
-          },          title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
+          },
           title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
           gauge: {
-            axis: {
-              range: [0, 1000],
-              tickvals: [0, 150, 250, 500, 1000],  // Show ticks at key thresholds
-              ticktext: ["0", "150", "250", "500", "1000"]
-            },            
-            bar: { color: "transparent" }, // hide the pointer
-            steps: [
-              { range: [0, 150], color: "#FD5901" },
-              { range: [150, 250], color: "#FAAB36" },
-              { range: [250, 1000], color: "#8FD694" }
-            ],
-            shape: "angular"
+            ...gaugeConfig,
+            bar: { color: "transparent" }  // pointer hidden
           }
         }], {
           margin: { t: 50, b: 0 },
           paper_bgcolor: "#fff",
-          height: 260,
-          annotations: [
-            {
-              x: 0.17, y: 0.13,
-              text: "Low",
-              showarrow: false,
-              font: { size: 18, color: "#FD5901" },
-              xref: "paper", yref: "paper"
-            },
-            {
-              x: 0.20, y: 0.30,
-              text: "Borderline",
-              showarrow: false,
-              font: { size: 18, color: "#FAAB36" },
-              xref: "paper", yref: "paper"
-            },
-            {
-              x: 0.5, y: 0.75,
-              text: "Good",
-              showarrow: false,
-              font: { size: 18, color: "#4CAF50" },
-              xref: "paper", yref: "paper"
-            }
-          ]
+          height: 260
         }, { displayModeBar: false });
-
         return;
       }
-
+  
       const avgMel = recentData.reduce((sum, d) => sum + d.mel, 0) / recentData.length;
-
+  
       Plotly.react("gauge-chart", [{
         type: "indicator",
         mode: "gauge+number",
         value: avgMel,
         title: { text: "Melanopic Lux (Last 3 hrs)", font: { size: 16 } },
-        gauge: {
-          axis: {
-            range: [0, 1000],
-            tickvals: [0, 150, 250, 500, 1000],  // Show ticks at key thresholds
-            ticktext: ["0", "150", "250", "500", "1000"]
-          },
-          bar: { color: "#888" },
-          steps: [
-            { range: [0, 150], color: "#FD5901" },
-            { range: [150, 250], color: "#FAAB36" },
-            { range: [250, 1000], color: "#8FD694" }
-          ],
-          shape: "angular"
-        }
+        gauge: gaugeConfig
       }], {
         margin: { t: 50, b: 0 },
         paper_bgcolor: "#fff",
-        height: 260,
-        annotations: [
-          {
-            x: 0.17, y: 0.13,
-            text: "Low",
-            showarrow: false,
-            font: { size: 18, color: "#FD5901" },
-            xref: "paper", yref: "paper"
-          },
-          {
-            x: 0.20, y: 0.30,
-            text: "Borderline",
-            showarrow: false,
-            font: { size: 18, color: "#FAAB36" },
-            xref: "paper", yref: "paper"
-          },
-          {
-            x: 0.5, y: 0.75,
-            text: "Good",
-            showarrow: false,
-            font: { size: 18, color: "#4CAF50" },
-            xref: "paper", yref: "paper"
-          }
-        ]
+        height: 260
       }, { displayModeBar: false });
     }
-
-  Papa.parse(csvUrl, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-
-        parsedData = results.data.map(row => {
-          const ts = parseInt((row['timestamp'] || '').trim());
-          const mel = parseFloat((row['mel'] || '').trim());
-          if (isNaN(ts) || isNaN(mel)) return null;
-
-          const local = new Date(ts * 1000); // Uses browser's local timezone automatically
-          const dateStr = local.toISOString().split('T')[0];
-
-          return {
-            datetime: local,
-            dateStr: dateStr,
-            mel: mel
-          };
-        }).filter(r => r !== null);
-        
-        populateControls();
-        drawLiveGauge();  // ✅ moved here to run after data is loaded
-        setInterval(drawLiveGauge, 60000);  // updates every 60 seconds
-
-      }
-    });
+  
   </script>
   <footer style="margin-top: 40px; padding: 20px; background-color: #004b4c; color: white; font-size: 14px; text-align: center;">
     <div style="max-width: 900px; margin: auto;">
