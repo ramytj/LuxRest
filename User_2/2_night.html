@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.4, minimum-scale=0.2, maximum-scale=3, user-scalable=yes">
+  <title>Live Melanopic Lux Dashboard (Cache-Busting Enabled)</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <script>
+    let parsedData = [];
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=1658502166&single=true&output=csv&cb=" + Date.now();
+  </script>
+
+  <style>
+    @media (max-width: 768px) {
+      #dashboard-window {
+        position: relative;
+        margin: 20px auto;
+        width: 95vw;       /* 95% of viewport width */
+        max-width: 1200px; /* optional max width for large screens */
+        height: auto;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: ...;
+        overflow: visible;
+      }
+
+      body {
+        overflow-x: scroll;
+      }
+
+      #dashboard-header {
+        font-size: 18px;
+        padding: 10px;
+      }
+
+      #controls {
+        font-size: 18px;
+      }
+
+      select {
+        font-size: 18px;
+        padding: 10px 14px;
+      }
+
+      #chart-container {
+        height: calc(100% - 90px);
+      }
+    }
+
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #005F60; /* deep teal */
+      margin: 0;
+      height: 100vh;
+    }
+    #dashboard-window {
+      width: 1200px;
+      height: 800px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      position: absolute;
+      top: 600px;
+      left: 100px;
+      background: #FAAB36;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      z-index: 1000;
+      overflow: auto;
+      resize: both;
+      transition: transform 0.2s ease;
+    }
+    #dashboard-window:active {
+      transform: scale(1.01);
+    }
+
+
+    #dashboard-header {
+      padding: 10px;
+      background-color: #FD5901; /* strong orange */
+      color: white;
+      cursor: move;
+      font-weight: bold;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    #controls {
+      margin: 10px;
+    }
+
+
+    #chart-container {
+      background-color: transparent; /*light teal*/
+      border: 1px solid #F78104;
+      border-radius: 5px;
+      color: #000;
+      font-weight: bold;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      height: calc(100% - 100px); /* leave space for header & controls */
+    }
+    select:hover {
+      background-color: #F78104;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(253, 89, 1, 0.4);
+    }
+    #chart {
+      width: 100%;
+      height: 100%;
+    }
+    #error-msg {
+      color: red;
+      padding: 0 20px 20px 20px;
+    }
+
+    select {
+      padding: 6px 12px;
+      margin-right: 10px;
+      background-color: #FAAB36;
+      border: 1px solid #F78104;
+      border-radius: 5px;
+      color: #000;
+      font-weight: bold;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #dashboard-area {
+      position: relative;
+      margin: 100px auto;
+      width: 1400px;
+      height: 2000px; /* ✅ updated height */
+      padding: 100px;
+      background-color: #004f50;
+      border-radius: 20px;
+      box-shadow:
+        inset 0 2px 5px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.2),
+        0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+
+
+
+  </style>
+
+</head>
+<body>
+  <script>
+    /* password off (delete this line to turn on)
+    let sheetUsername = "";
+
+    // Fetch A2 value from the sheet (username)
+    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=0&single=true&output=csv")
+      .then(response => response.text())
+      .then(csv => {
+        const rows = csv.trim().split("\n");
+        sheetUsername = rows[1]?.split(",")[0]?.trim(); // A2 value
+
+        const inputUsername = prompt("Username:");
+        const inputPassword = prompt("Password:");
+
+        if (inputUsername !== sheetUsername || inputPassword !== "luxrest123") {
+          document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:20%;'>Access Denied</h2>";
+          throw new Error("Access denied");
+        }
+      })
+      .catch(err => {
+        document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:20%;'>Error loading user access</h2>";
+        throw err;
+      });
+  </script>
+  
+
+  <header style="background-color:#003c3d; color:white; padding: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 2000;">
+    <div style="display: flex; align-items: center;">
+      <img src="luxrest-high-resolution-logo.png" alt="LuxRest Logo" style="height: 160px; margin-right: 40px;">
+      <h1 style="margin: 0; font-size: 24px;">LuxRest Dashboard</h1>
+    </div>
+    <nav>
+      <a href="#contact" style="margin-right: 20px; color: #FFD700; text-decoration: none; font-weight: bold;">Contact Us</a>
+      <a href="#learn-more" style="color: #FFD700; text-decoration: none; font-weight: bold;">Learn More</a>
+    </nav>
+  </header>
+  <div id="dashboard-area" style="
+    position: relative;
+    width: 2100px;
+    height: 2000px;
+    margin: 100px auto;
+    border: 2px solid #ccc;
+    background-color: #004f50;
+    overflow: hidden;
+  ">    
+    <div id="dashboard-window">
+      <div id="dashboard-header">  Melanopic Lux Dashboard</div>
+      <div id="controls">
+        <label for="date-select">Select Date:</label>
+        <select id="date-select"></select>
+  
+        <label for="resolution-select">Resolution:</label>
+        <select id="resolution-select">
+          <option value="5">Every 5 minutes</option>
+          <option value="15">Every 15 minutes</option>
+          <option value="60" selected>Hourly</option>
+          <option value="360">Every 6 hours</option>
+        </select>
+      </div>
+      <div id="chart-container">
+        <div id="chart"></div>
+        <div id="error-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dragElement = (element, header) => {
+      const gridSize = 100;
+      let offsetX = 0, offsetY = 0, isDragging = false;
+    
+      header.onpointerdown = (e) => {
+        e.preventDefault();
+        isDragging = true;
+        offsetX = e.clientX - element.offsetLeft;
+        offsetY = e.clientY - element.offsetTop;
+    
+        document.onpointermove = (e) => {
+          if (!isDragging) return;
+    
+          const newLeft = Math.round((e.clientX - offsetX) / gridSize) * gridSize;
+          const newTop = Math.round((e.clientY - offsetY) / gridSize) * gridSize;
+    
+          const area = document.getElementById("dashboard-area");
+          if (!area || area.offsetWidth === 0 || area.offsetHeight === 0) return;
+    
+          const maxX = area.offsetWidth - element.offsetWidth;
+          const maxY = area.offsetHeight - element.offsetHeight;
+    
+          const boundedLeft = Math.max(0, Math.min(newLeft, maxX));
+          const boundedTop = Math.max(0, Math.min(newTop, maxY));
+    
+          element.style.left = `${boundedLeft}px`;
+          element.style.top = `${boundedTop}px`;
+        };
+    
+        document.onpointerup = () => {
+          isDragging = false;
+          document.onpointermove = null;
+          document.onpointerup = null;
+        };
+      };
+    };
+    
+    // Usage
+    dragElement(
+      document.getElementById("dashboard-window"),
+      document.getElementById("dashboard-header")
+    );
+
+
+
+
+    function groupByResolution(data, resolutionMinutes) {
+      const grouped = {};
+      data.forEach(row => {
+        const date = row.dateStr;
+        const datetime = row.datetime;
+        const timeKey = new Date(Math.floor(datetime.getTime() / (resolutionMinutes * 60 * 1000)) * resolutionMinutes * 60 * 1000);
+        const key = date + " " + timeKey.toTimeString().substring(0,5);
+        if (!grouped[key]) {
+          grouped[key] = { time: timeKey, date: date, mel: 0, count: 0 };
+        }
+        grouped[key].mel += row.mel;
+        grouped[key].count += 1;
+      });
+      return Object.values(grouped).map(g => {
+        return { time: g.time, date: g.date, mel: g.mel / g.count };
+      });
+    }
+
+    function updateChart(date, resolution) {
+      const resolutionMinutes = parseInt(resolution);
+      const groupedData = groupByResolution(parsedData, resolutionMinutes);
+      const dayData = groupedData.filter(d => d.date === date)
+        .sort((a, b) => new Date(a.time) - new Date(b.time));
+
+      const trace1 = {
+        x: dayData.map(d => d.time),
+        y: dayData.map(d => d.mel),
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Melanopic Lux',
+        yaxis: 'y1',
+        line: { color: '#FAAB36' },
+        marker: { color: '#FAAB36' }
+      };
+
+      const trace2 = {
+        x: dayData.map(d => d.time),
+        y: dayData.map(d => d.mel),
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Melanopic Lux (Full)',
+        yaxis: 'y2',
+        line: { color: '#FAAB36' },
+        marker: { color: '#FAAB36' },
+        showlegend: false
+      };
+
+      // Shared x-values and hover text for both traces
+      const idealX = [
+        new Date(`${date}T00:00:00`), new Date(`${date}T06:00:00`),
+        new Date(`${date}T06:00:00`), new Date(`${date}T18:00:00`),
+        new Date(`${date}T18:00:00`), new Date(`${date}T23:59:59`)
+      ];
+      const idealY = [1, 1, 250, 250, 10, 10];
+
+
+      // Hover-only trace (Zoomed)
+      const traceIdealZoomedHover = {
+        x: idealX,
+        y: idealY.map((v, i) => v <= 10 ? v : null), // Filter only zoom-relevant lines
+        mode: 'lines',
+        name: 'Ideal Exposure',
+        line: { dash: 'dot', color: '#F78104', width: 2 },
+        hoverinfo: 'text',
+        text: [ null, null,
+               null, null,
+               null, null
+    //      "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+    //      null, null,
+    //      "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        ],
+        yaxis: 'y1',
+      };
+
+      // Hover-only trace (Full)
+      const traceIdealFullHover = {
+        x: idealX,
+        y: idealY,
+        mode: 'lines',
+        name: '',
+        line: { dash: 'dot', color: '#F78104', width: 2 },
+        hoverinfo: 'text',
+        text: [ null, null,
+               null, null,
+               null, null
+      //    "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+      //    "minimum 3 hours of over 250 lux during daytime (ideally before noon)", "minimum 3 hours of over 250 lux during daytime (ideally before noon)",
+       //   "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        ],
+        yaxis: 'y2',
+        showlegend: false
+      };
+
+      // Label trace (Zoomed)
+      const traceIdealZoomedLabel = {
+        x: idealX,
+        y: idealY.map((v, i) => v <= 10 ? v : null),
+        mode: 'text',
+        name: '',
+        text: [
+          "Ideal: ≤1 lux (sleeping)", "Ideal: ≤1 lux (sleeping)",
+          null, null,
+          "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
+        ],
+        textposition: [
+          'top right', 'top left',
+          null, null,
+          'top right', 'top left'
+        ],
+        hoverinfo: 'skip',
+        yaxis: 'y1',
+        showlegend: false,
+        textfont: {
+          color: '#FFF7E1',
+          size: 10,         // or another smaller value
+          family: 'Arial'   // use a regular font family (avoid bold fonts like Helvetica Neue Bold)
+        }
+      };
+
+
+      // Label trace (Full)
+      const traceIdealFullLabel = {
+        x: idealX,
+        y: idealY,
+        mode: 'text',
+        name: '',
+        text: [
+          "Ideal: ≤1 lux (sleeping)", "Ideal: ≤1 lux (sleeping)",
+          "Ideal: ≥250 lux (daytime)", "Ideal: ≥250 lux (daytime)",
+          "Ideal: ≤10 lux (evening)", "Ideal: ≤10 lux (evening)"
+        ],
+        textposition: [
+          'top right', 'top left',
+          'top right', 'top left',
+          'top right', 'top left'
+        ],
+        hoverinfo: 'skip',
+        yaxis: 'y2',
+        showlegend: false,
+        textfont: {
+          color: '#161f28',
+          size: 10,         // or another smaller value
+          family: 'Arial'   // use a regular font family (avoid bold fonts like Helvetica Neue Bold)
+        }
+      };
+      // Hover points for Zoomed subplot (only ≤10 lux periods)
+      const traceIdealZoomedMarkers = {
+        x: [
+          new Date(`${date}T00:00:00`), new Date(`${date}T03:00:00`), new Date(`${date}T05:45:00`),
+          new Date(`${date}T18:00:00`), new Date(`${date}T21:00:00`), new Date(`${date}T23:45:00`)
+        ],
+        y: [1, 1, 1, 10, 10, 10],
+        mode: 'markers',
+        type: 'scatter',
+        marker: { size: 8, color: '#F78104', symbol: 'circle-open', opacity: 0},
+        text: [
+          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        ],
+        hoverinfo: 'text',
+        yaxis: 'y1',
+        showlegend: false
+      };
+      
+      // Hover points for Full subplot (all 3 periods)
+      const traceIdealFullMarkers = {
+        x: [
+          new Date(`${date}T00:00:00`), new Date(`${date}T03:00:00`), new Date(`${date}T05:45:00`),
+          new Date(`${date}T06:00:00`), new Date(`${date}T12:00:00`), new Date(`${date}T17:45:00`),
+          new Date(`${date}T18:00:00`), new Date(`${date}T21:00:00`), new Date(`${date}T23:45:00`)
+        ],
+        y: [1, 1, 1, 250, 250, 250, 10, 10, 10],
+        mode: 'markers',
+        type: 'scatter',
+        marker: { size: 8, color: '#F78104', symbol: 'circle-open', opacity: 0},
+        text: [
+          "maximum 1 lux when sleeping", "maximum 1 lux when sleeping", "maximum 1 lux when sleeping",
+          "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)", "minimum 250 lux during daytime (ideally before noon)",
+          "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping", "maximum 10 lux for at least 3 hours before sleeping"
+        ],
+        hoverinfo: 'text',
+        yaxis: 'y2',
+        showlegend: false
+      };
+
+
+      const layout = {
+        title: {
+          text: `Melanopic Lux on ${date}<br><span style="color:red; font-size:12px;">(double click to go back to default zoom)</span>`,
+          font: { size: 18 }
+        },
+        grid: { rows: 2, columns: 1, pattern: 'independent', roworder: 'bottom to top' },
+        paper_bgcolor: '#008083',
+        plot_bgcolor: 'transparent',
+        font: { family: 'Helvetica Neue', size: 14, color: '#ffffff' },
+        xaxis: {
+          title: 'Time',
+          domain: [0, 1],
+          anchor: 'y2',
+          gridcolor: '#e0e0e0',
+          range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
+        },
+        yaxis: {
+          title: 'MLE [0–15 Lux (Evening-Time)]',
+          range: [0, 15],
+          domain: [0, 0.2],
+          gridcolor: '#e0e0e0'
+        },
+        yaxis2: {
+          title: 'MLE (Melanopic Light Exposure)',
+          range: [0, 500],
+          domain: [0.3, 1],
+          gridcolor: '#e0e0e0'
+        },
+        legend: {
+          orientation: 'h',
+          y: -0.2
+        },
+        shapes: [
+          {
+            type: 'rect',
+            xref: 'paper',
+            yref: 'paper',
+            x0: 0,
+            x1: 1,
+            y0: 0,
+            y1: 0.2,
+            fillcolor: '#161f28',  // midnight blue for zoomed subplot
+            opacity: 1,
+            layer: 'below',
+            line: { width: 0 }
+          },
+          {
+            type: 'rect',
+            xref: 'paper',
+            yref: 'paper',
+            x0: 0,
+            x1: 1,
+            y0: 0.3,
+            y1: 1,
+            fillcolor: '#FFF7E1',  // light yellow for full subplot
+            opacity: 1,
+            layer: 'below',
+            line: { width: 0 }
+          }
+        ]
+      };
+
+
+      Plotly.newPlot(
+        'chart',
+        [
+          trace1, trace2,
+          traceIdealZoomedHover, traceIdealZoomedLabel,
+          traceIdealFullHover, traceIdealFullLabel, 
+          traceIdealZoomedMarkers, traceIdealFullMarkers
+        ],
+        layout,
+        { scrollZoom: true, responsive: true }
+      );
+      // Automatically resize the chart with the container
+      const chartContainer = document.getElementById('chart');
+      const resizeObserver = new ResizeObserver(() => {
+        Plotly.Plots.resize(chartContainer);
+      });
+      resizeObserver.observe(document.getElementById('dashboard-window'));
+
+    }
+
+    function populateControls() {
+      const dateSelect = document.getElementById('date-select');
+      const resolutionSelect = document.getElementById('resolution-select');
+      const uniqueDates = [...new Set(parsedData.map(row => row.dateStr))];
+      if (uniqueDates.length === 0) {
+        document.getElementById('error-msg').textContent = "No valid data found in the sheet.";
+        return;
+      }
+      uniqueDates.forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        dateSelect.appendChild(opt);
+      });
+      dateSelect.value = uniqueDates[uniqueDates.length - 1];
+
+      dateSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
+      resolutionSelect.onchange = () => updateChart(dateSelect.value, resolutionSelect.value);
+
+      updateChart(dateSelect.value, resolutionSelect.value);
+    }
+
+
+  </script>
+  <script>
+
+    // Gauge window + live update logic
+  
+    const gaugeWindow = document.createElement("div");
+    gaugeWindow.id = "gauge-window";
+    gaugeWindow.style.cssText = `
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      width: 600px;
+      height: 400px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 1001;
+    `;
+    gaugeWindow.innerHTML = `
+      <div id="gauge-header" style="
+        background: #FD5901;
+        color: white;
+        padding: 8px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-weight: bold;
+        cursor: move;">
+        Exposure Quality (Last 3 hrs)
+      </div>
+      <div id="gauge-chart" style="width: 100%; height: calc(100% - 40px);"></div>
+    `;
+    document.getElementById("dashboard-area").appendChild(gaugeWindow);
+  
+    dragElement(gaugeWindow, document.getElementById("gauge-header"));
+
+
+    function drawLiveGauge() {
+      const now = new Date();
+      const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+
+      const recentData = parsedData.filter(d =>
+        d.datetime >= threeHoursAgo && d.datetime <= now
+      );
+
+ //     if (recentData.length === 0) {
+ //       document.getElementById("gauge-chart").innerHTML = "<div style='text-align:center;padding-top:40px;'>No recent data</div>";
+  //      return;
+  //    }
+      if (recentData.length === 0) {
+        // show message inside gauge with no pointer
+        Plotly.react("gauge-chart", [{
+          type: "indicator",
+          mode: "gauge+number",
+          value: 0,
+          number: {
+            valueformat: "",
+              font: { 
+                size: 36,
+                family: "Arial Black, Arial, sans-serif",
+                color: "#999",
+              },
+              suffix: "",  // acts as the full label
+          },          
+          title: { text: "", font: { size: 16 } },
+          gauge: {
+            axis: {
+              range: [0, 200],
+              tickvals: [0, 1, 10, 50, 200],
+              ticktext: ["0", "1", "10", "50", "200"]
+            },
+            bar: { color: "#888" },
+            steps: [
+              { range: [0, 1], color: "#006400" },
+              { range: [1, 10], color: "#00cc00" },
+              { range: [10, 50], color: "#FFD700" },
+              { range: [50, 200], color: "#FF0000" }
+              ],
+            shape: "angular"
+          }
+        }], {
+          margin: { t: 50, b: 0 },
+          paper_bgcolor: "#fff",
+          height: 260,
+          annotations: [
+            {
+              x: 0.5,    // center horizontally
+              y: 1.3,   // adjust vertical placement (0 to 1)
+              xref: "paper",
+              yref: "paper",
+              text: "Melanopic Lux (Last 3 hrs)",
+              showarrow: false,
+              font: { 
+                size: 36,
+                family: "Arial Black, Arial, sans-serif",
+                color: "#999",
+              }
+            },
+            {
+              x: 0.17, y: 0.13,
+              text: "Good",
+              showarrow: false,
+              font: { size: 18, color: "#4CAF50" },
+              xref: "paper", yref: "paper"
+            },
+            {
+              x: 0.20, y: 0.30,
+              text: "Borderline",
+              showarrow: false,
+              font: { size: 18, color: "#FAAB36" },
+              xref: "paper", yref: "paper"
+            },
+            {
+              x: 0.5, y: 0.75,
+              text: "High",
+              showarrow: false,
+              font: { size: 18, color: "#FD5901" },
+              xref: "paper", yref: "paper"
+            }
+          ]
+        }, { displayModeBar: false });
+
+        return;
+      }
+
+      const avgMel = recentData.reduce((sum, d) => sum + d.mel, 0) / recentData.length;
+
+      Plotly.react("gauge-chart", [{
+        type: "indicator",
+        mode: "gauge+number",
+        value: avgMel,
+        number: {
+          valueformat: "",
+            font: { 
+              size: 36,
+              family: "Arial Black, Arial, sans-serif",
+              color: "#999",
+            },
+            suffix: "",  // acts as the full label
+        },
+        title: { text: "", font: { size: 16 } },
+        gauge: {
+          axis: {
+            range: [0, 200],
+            tickvals: [0, 1, 10, 50, 200],
+            ticktext: ["0", "1", "10", "50", "200"]
+          },
+          bar: { color: "#888" },
+          steps: [
+            { range: [0, 1], color: "#006400" },
+            { range: [1, 10], color: "#00cc00" },
+            { range: [10, 50], color: "#FFD700" },
+            { range: [50, 200], color: "#FF0000" }
+          ],
+          shape: "angular"
+        }
+      }], {
+        margin: { t: 50, b: 0 },
+        paper_bgcolor: "#fff",
+        height: 260,
+        annotations: [
+          {
+            x: 0.5,    // center horizontally
+            y: 1.3,   // adjust vertical placement (0 to 1)
+            xref: "paper",
+            yref: "paper",
+            text: "Melanopic Lux (Last 3 hrs)",
+            showarrow: false,
+            font: { 
+              size: 36,
+              family: "Arial Black, Arial, sans-serif",
+              color: "#999",
+            }
+          },
+          {
+            x: 0.17, y: 0.13,
+            text: "Good",
+            showarrow: false,
+            font: { size: 18, color: "#4CAF50" },
+            xref: "paper", yref: "paper"
+          },
+          {
+            x: 0.20, y: 0.30,
+            text: "Borderline",
+            showarrow: false,
+            font: { size: 18, color: "#FAAB36" },
+            xref: "paper", yref: "paper"
+          },
+          {
+            x: 0.5, y: 0.75,
+            text: "High",
+            showarrow: false,
+            font: { size: 18, color: "#FD5901" },
+            xref: "paper", yref: "paper"
+          }
+        ]
+      }, { displayModeBar: false });
+    }
+
+  Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+
+        parsedData = results.data.map(row => {
+          const ts = parseInt((row['timestamp'] || '').trim());
+          const mel = parseFloat((row['mel'] || '').trim());
+          if (isNaN(ts) || isNaN(mel)) return null;
+
+          const local = new Date(ts * 1000); // Uses browser's local timezone automatically
+          const dateStr = local.toISOString().split('T')[0];
+
+          return {
+            datetime: local,
+            dateStr: dateStr,
+            mel: mel
+          };
+        }).filter(r => r !== null);
+        
+        populateControls();
+        drawLiveGauge();  // ✅ moved here to run after data is loaded
+        setInterval(drawLiveGauge, 60000);  // updates every 60 seconds
+
+      }
+    });
+  </script>
+  <footer style="margin-top: 40px; padding: 20px; background-color: #004b4c; color: white; font-size: 14px; text-align: center;">
+    <div style="max-width: 900px; margin: auto;">
+      <p><strong>About LuxRest</strong><br>
+      LuxRest is a research-based platform designed to help individuals monitor and improve their light exposure patterns for better sleep and circadian health. This project is part of an academic study conducted by Drexel University’s Architectural Engineering program.</p>
+  
+      <p><strong>Contact</strong><br>
+      For questions or collaborations, email us at <a href="mailto:ramytj@drexel.edu" style="color:#FFA500;">rt626@drexel.edu</a>.</p>
+  
+      <p><strong>Disclaimer</strong><br>
+      This dashboard is for informational and research purposes only. It does not provide medical advice and should not be used to diagnose, treat, or prevent any medical condition. Use of this site implies agreement with our research terms.</p>
+  
+      <p style="margin-top:10px;">© 2025 LuxRest Research Team</p>
+    </div>
+  </footer>
+
+</body>
+</html>
