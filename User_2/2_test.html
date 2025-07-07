@@ -5,15 +5,7 @@
   <title>Live Melanopic Lux Dashboard (Cache-Busting Enabled)</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGFHGSFYFZ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-GGFHGSFYFZ');
-  </script>
+
   <script>
     let parsedData = [];
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTABn-Pt-pNX6oVoBvNtwVy7WLIbNr2KgT8eV75QBJrsatAqwi56Y3PqD7h9mdF7kGPNMHrKmJGVcag/pub?gid=1658502166&single=true&output=csv&cb=" + Date.now();
