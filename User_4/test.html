@@ -287,28 +287,50 @@
       const groupedData = groupByResolution(parsedData, resolutionMinutes);
       const dayData = groupedData.filter(d => d.date === date)
         .sort((a, b) => new Date(a.time) - new Date(b.time));
+      // Gap-aware time series creation
+      let xGapAware = [];
+      let yGapAware = [];
+      
+      for (let i = 0; i < dayData.length; i++) {
+        const curr = dayData[i];
+        const prev = dayData[i - 1];
+      
+        xGapAware.push(curr.time);
+        yGapAware.push(curr.mel);
+      
+        if (prev) {
+          const gapMinutes = (curr.time - prev.time) / (1000 * 60);
+          if (gapMinutes > resolutionMinutes * 2.5) {
+            // insert null to break the line
+            xGapAware.push(null);
+            yGapAware.push(null);
+          }
+        }
+      }
 
       const trace1 = {
-        x: dayData.map(d => d.time),
-        y: dayData.map(d => d.mel),
+        x: xGapAware,
+        y: yGapAware,
         mode: 'lines+markers',
         type: 'scatter',
         name: 'Melanopic Lux',
         yaxis: 'y1',
         line: { color: '#FAAB36' },
-        marker: { color: '#FAAB36' }
+        marker: { color: '#FAAB36' },
+        connectgaps: false
       };
 
       const trace2 = {
-        x: dayData.map(d => d.time),
-        y: dayData.map(d => d.mel),
+        x: xGapAware,
+        y: yGapAware,
         mode: 'lines+markers',
         type: 'scatter',
         name: 'Melanopic Lux (Full)',
         yaxis: 'y2',
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' },
-        showlegend: false
+        showlegend: false,
+        connectgaps: false
       };
 
       // Shared x-values and hover text for both traces
