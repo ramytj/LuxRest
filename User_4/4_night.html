@@ -67,7 +67,7 @@
     }
     #dashboard-window {
       width: 1200px;
-      height: 800px;
+      height: 1000px;
       border: 1px solid #ccc;
       border-radius: 10px;
       position: absolute;
@@ -295,30 +295,54 @@
     function updateChart(date, resolution) {
       const resolutionMinutes = parseInt(resolution);
       const groupedData = groupByResolution(parsedData, resolutionMinutes);
-      const dayData = groupedData.filter(d => d.date === date)
-        .sort((a, b) => new Date(a.time) - new Date(b.time));
+      const dayData = groupedData
+        .filter(d => d.date === date)
+        .sort((a, b) => a.time - b.time);
+
+      // Gap-aware time series creation
+      let xGapAware = [];
+      let yGapAware = [];
+      
+      for (let i = 0; i < dayData.length; i++) {
+        const curr = dayData[i];
+        const prev = dayData[i - 1];
+      
+        xGapAware.push(curr.time);
+        yGapAware.push(curr.mel);
+      
+        if (prev) {
+          const gapMinutes = (curr.time - prev.time) / (1000 * 60);
+          if (gapMinutes > resolutionMinutes * 2.5) {
+            // insert null to break the line
+            xGapAware.push(null);
+            yGapAware.push(null);
+          }
+        }
+      }
 
       const trace1 = {
-        x: dayData.map(d => d.time),
-        y: dayData.map(d => d.mel),
+        x: xGapAware,
+        y: yGapAware,
         mode: 'lines+markers',
         type: 'scatter',
         name: 'Melanopic Lux',
         yaxis: 'y1',
         line: { color: '#FAAB36' },
-        marker: { color: '#FAAB36' }
+        marker: { color: '#FAAB36' },
+        connectgaps: false
       };
 
       const trace2 = {
-        x: dayData.map(d => d.time),
-        y: dayData.map(d => d.mel),
+        x: xGapAware,
+        y: yGapAware,
         mode: 'lines+markers',
         type: 'scatter',
         name: 'Melanopic Lux (Full)',
         yaxis: 'y2',
         line: { color: '#FAAB36' },
         marker: { color: '#FAAB36' },
-        showlegend: false
+        showlegend: false,
+        connectgaps: false
       };
 
       // Shared x-values and hover text for both traces
@@ -459,6 +483,7 @@
         showlegend: false
       };
 
+      const [year, month, day] = date.split('-').map(v => parseInt(v));
 
       const layout = {
         title: {
@@ -474,23 +499,26 @@
           domain: [0, 1],
           anchor: 'y2',
           gridcolor: '#e0e0e0',
-          range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
+          range: [
+            new Date(year, month - 1, day, 0, 0, 0),
+            new Date(year, month - 1, day, 23, 59, 59)
+          ]
         },
         yaxis: {
           title: 'MLE [0–15 Lux (Evening-Time)]',
           range: [0, 15],
-          domain: [0, 0.2],
+          domain: [0, 0.35],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
           title: 'MLE (Melanopic Light Exposure)',
           range: [0, 500],
-          domain: [0.3, 1],
+          domain: [0.45, 1],
           gridcolor: '#e0e0e0'
         },
         legend: {
           orientation: 'h',
-          y: -0.2
+          y: -0.05
         },
         shapes: [
           {
@@ -500,7 +528,7 @@
             x0: 0,
             x1: 1,
             y0: 0,
-            y1: 0.2,
+            y1: 0.35,
             fillcolor: '#161f28',  // midnight blue for zoomed subplot
             opacity: 1,
             layer: 'below',
@@ -512,7 +540,7 @@
             yref: 'paper',
             x0: 0,
             x1: 1,
-            y0: 0.3,
+            y0: 0.45,
             y1: 1,
             fillcolor: '#FFF7E1',  // light yellow for full subplot
             opacity: 1,
