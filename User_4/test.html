@@ -486,7 +486,10 @@
           domain: [0, 1],
           anchor: 'y2',
           gridcolor: '#e0e0e0',
-          range: [new Date(date + "T00:00:00"), new Date(date + "T23:59:59")]
+          range: [
+            new Date(new Date(date).setHours(0, 0, 0, 0)),
+            new Date(new Date(date).setHours(23, 59, 59, 999))
+          ]
         },
         yaxis: {
           title: 'MLE [0–15 Lux (Evening-Time)]',
