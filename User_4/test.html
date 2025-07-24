@@ -471,6 +471,7 @@
         showlegend: false
       };
 
+      const [year, month, day] = date.split('-').map(v => parseInt(v));
 
       const layout = {
         title: {
@@ -487,8 +488,8 @@
           anchor: 'y2',
           gridcolor: '#e0e0e0',
           range: [
-            new Date(Date.UTC(...date.split('-').map((v, i) => i === 1 ? parseInt(v) - 1 : parseInt(v)), 0, 0, 0, 0)),
-            new Date(Date.UTC(...date.split('-').map((v, i) => i === 1 ? parseInt(v) - 1 : parseInt(v)), 23, 59, 59))
+            new Date(Date.UTC(year, month - 1, day, 0, 0, 0)),
+            new Date(Date.UTC(year, month - 1, day, 23, 59, 59))
           ]
         },
         yaxis: {
