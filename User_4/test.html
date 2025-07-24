@@ -285,8 +285,10 @@
     function updateChart(date, resolution) {
       const resolutionMinutes = parseInt(resolution);
       const groupedData = groupByResolution(parsedData, resolutionMinutes);
-      const dayData = groupedData.filter(d => d.date === date)
-        .sort((a, b) => new Date(a.time) - new Date(b.time));
+      const dayData = groupedData
+        .filter(d => d.date === date)
+        .sort((a, b) => a.time - b.time);
+
       // Gap-aware time series creation
       let xGapAware = [];
       let yGapAware = [];
@@ -484,7 +486,7 @@
         font: { family: 'Helvetica Neue', size: 14, color: '#ffffff' },
         xaxis: {
           title: 'Time',
-          domain: [-0.2, 1],
+          domain: [0, 1],
           anchor: 'y2',
           gridcolor: '#e0e0e0',
           range: [
@@ -495,7 +497,7 @@
         yaxis: {
           title: 'MLE [0–15 Lux (Evening-Time)]',
           range: [0, 15],
-          domain: [-0.2, 0.2],
+          domain: [0, 0.2],
           gridcolor: '#e0e0e0'
         },
         yaxis2: {
