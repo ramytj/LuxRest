@@ -753,7 +753,6 @@
           const mel = parseFloat((row['mel'] || '').trim());
           if (isNaN(ts) || isNaN(mel)) return null;
 
-
           const utc = new Date(ts * 1000);
           const local = new Date(utc.getTime() - (utc.getTimezoneOffset() * 60000));
           const dateStr = local.getFullYear() + '-' +
@@ -766,6 +765,8 @@
             mel: mel
           };
         }).filter(r => r !== null);
+
+        console.log("Dates found in dataset:", [...new Set(parsedData.map(r => r.dateStr))]);
         
         populateControls();
         drawLiveGauge();  // ✅ moved here to run after data is loaded
