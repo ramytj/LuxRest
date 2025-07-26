@@ -754,7 +754,7 @@
           if (isNaN(ts) || isNaN(mel)) return null;
 
           const local = new Date(ts * 1000); // Uses browser's local timezone automatically
-          const dateStr = local.toISOString().split('T')[0];
+          const dateStr = local.getFullYear() + '-' + String(local.getMonth() + 1).padStart(2, '0') + '-' + String(local.getDate()).padStart(2, '0');
 
           return {
             datetime: local,
