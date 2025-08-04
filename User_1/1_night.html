@@ -804,7 +804,7 @@
           if (isNaN(ts) || isNaN(mel)) return null;
 
           const local = new Date(ts * 1000); // Uses browser's local timezone automatically
-          const dateStr = local.toISOString().split('T')[0];
+          const dateStr = local.toLocaleDateString("en-CA"); // this will be correct for daily grouping
 
           return {
             datetime: local,
