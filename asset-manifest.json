@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/LuxRest/ui/static/css/main.5cc91e96.css",
-    "main.js": "/LuxRest/ui/static/js/main.4669a3af.js",
+    "main.css": "/LuxRest/ui/static/css/main.b949408b.css",
+    "main.js": "/LuxRest/ui/static/js/main.130a689c.js",
     "static/js/453.a1e9156f.chunk.js": "/LuxRest/ui/static/js/453.a1e9156f.chunk.js",
     "index.html": "/LuxRest/ui/index.html",
-    "main.5cc91e96.css.map": "/LuxRest/ui/static/css/main.5cc91e96.css.map",
-    "main.4669a3af.js.map": "/LuxRest/ui/static/js/main.4669a3af.js.map",
+    "main.b949408b.css.map": "/LuxRest/ui/static/css/main.b949408b.css.map",
+    "main.130a689c.js.map": "/LuxRest/ui/static/js/main.130a689c.js.map",
     "453.a1e9156f.chunk.js.map": "/LuxRest/ui/static/js/453.a1e9156f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5cc91e96.css",
-    "static/js/main.4669a3af.js"
+    "static/css/main.b949408b.css",
+    "static/js/main.130a689c.js"
   ]
 }
